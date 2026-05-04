@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — Contact Us</title>
+    <meta name="description" content="Get in touch with VELORÉ. We'd love to hear from you.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { overflow-x: hidden; }
+        #navbar {
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.6rem 0;
+        }
+
+        .contact-hero {
+            padding: 160px 0 60px;
+            text-align: center;
+            position: relative;
+        }
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .contact-hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 1rem;
+        }
+        .contact-hero p {
+            color: var(--color-gray);
+            font-size: 1.05rem;
+            font-weight: 300;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .contact-layout {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: var(--space-lg) var(--space-md);
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: var(--space-xl);
+        }
+
+        /* Left Info */
+        .contact-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: var(--space-md);
+            color: var(--color-gold);
+        }
+
+        .info-item {
+            margin-bottom: var(--space-md);
+        }
+        .info-item h4 {
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-gold);
+            margin-bottom: 0.5rem;
+        }
+        .info-item p {
+            font-size: 0.95rem;
+            color: var(--color-gray);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: var(--space-lg);
+        }
+        .social-links a {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-gray);
+            transition: color 0.3s;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
+        }
+        .social-links a:hover {
+            color: var(--color-gold);
+            border-bottom-color: var(--color-gold);
+        }
+
+        /* Right Form */
+        .contact-form {
+            background: rgba(22, 22, 22, 0.5);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: var(--space-lg);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-gray);
+            margin-bottom: 0.5rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px 16px;
+            color: var(--color-ivory);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--color-gold);
+            background: rgba(0,0,0,0.5);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 140px;
+        }
+        .form-group select option {
+            background: #1a1a1a;
+        }
+
+        .contact-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--color-gold);
+            color: var(--color-black);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .contact-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .contact-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-message {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--color-gold);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .contact-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="contact.html" class="nav-link" style="color:var(--color-gold)">Contact</a>
+                <a href="#" class="nav-link" id="nav-auth-btn">Sign In</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="contact-hero">
+        <p class="section-label">Get in Touch</p>
+        <h1>We'd Love to Hear From You</h1>
+        <p>Questions, feedback, or partnership inquiries — our team responds within 24 hours.</p>
+    </section>
+
+    <!-- Contact Layout -->
+    <div class="contact-layout">
+        <div class="contact-info">
+            <h3>Visit Us</h3>
+            <div class="info-item">
+                <h4>Address</h4>
+                <p>VELORÉ Flagship Store<br>42 Lotus Boulevard, Sector 100<br>Noida, Uttar Pradesh 201301</p>
+            </div>
+            <div class="info-item">
+                <h4>Hours</h4>
+                <p>Monday – Saturday: 10:00 AM – 8:00 PM<br>Sunday: 11:00 AM – 6:00 PM</p>
+            </div>
+            <div class="info-item">
+                <h4>Email</h4>
+                <p>hello@velore.in</p>
+            </div>
+            <div class="info-item">
+                <h4>Phone</h4>
+                <p>+91 98765 43210</p>
+            </div>
+            <div class="social-links">
+                <a href="#">Instagram</a>
+                <a href="#">Pinterest</a>
+                <a href="#">Twitter</a>
+            </div>
+        </div>
+
+        <form class="contact-form" id="contact-form">
+            <div class="form-group">
+                <label for="contact-name">Your Name</label>
+                <input type="text" id="contact-name" required placeholder="e.g. Priya Sharma">
+            </div>
+            <div class="form-group">
+                <label for="contact-email">Email Address</label>
+                <input type="email" id="contact-email" required placeholder="priya@example.com">
+            </div>
+            <div class="form-group">
+                <label for="contact-subject">Subject</label>
+                <select id="contact-subject">
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Order Support">Order Support</option>
+                    <option value="Partnership">Partnership / Wholesale</option>
+                    <option value="Returns">Returns & Exchanges</option>
+                    <option value="Feedback">Product Feedback</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="contact-message">Your Message</label>
+                <textarea id="contact-message" required placeholder="Tell us how we can help..."></textarea>
+            </div>
+            <button type="submit" class="contact-submit" id="contact-submit">Send Message</button>
+            <p class="form-message" id="form-message"></p>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer" style="margin-top: var(--space-xl);">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <p class="footer-logo">VELORÉ</p>
+                    <p class="footer-tagline">Crafted for timeless beauty</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Explore</h4>
+                        <a href="shop.html">Shop</a>
+                        <a href="index.html#philosophy">Our Story</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Support</h4>
+                        <a href="contact.html">Contact</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 VELORÉ. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Contact form
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('contact-submit');
+            const msgEl = document.getElementById('form-message');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('contact-name').value,
+                        email: document.getElementById('contact-email').value,
+                        subject: document.getElementById('contact-subject').value,
+                        message: document.getElementById('contact-message').value
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msgEl.textContent = data.message;
+                    msgEl.style.display = 'block';
+                    msgEl.style.color = 'var(--color-gold)';
+                    e.target.reset();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch(err) {
+                msgEl.textContent = err.message || 'Something went wrong.';
+                msgEl.style.display = 'block';
+                msgEl.style.color = '#ff6b6b';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Message';
+            }
+        });
+
+        // Mobile nav toggle
+        const toggle = document.getElementById('nav-toggle');
+        if(toggle) toggle.addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('open');
+            toggle.classList.toggle('active');
+        });
+
+        // Auth check
+        const authBtn = document.getElementById('nav-auth-btn');
+        const token = localStorage.getItem('token');
+        const userName = localStorage.getItem('userName');
+        if (token && userName && authBtn) {
+            authBtn.innerText = `Hi, ${userName}`;
+        }
+    </script>
+</body>
+</html>

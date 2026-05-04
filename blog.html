@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — The Journal</title>
+    <meta name="description" content="Explore skincare research, beauty tips, and product insights from the VELORÉ team.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{overflow-x:hidden}
+        #navbar{background:rgba(15,15,15,0.85);backdrop-filter:blur(12px);padding:0.6rem 0}
+
+        .blog-hero{padding:140px 0 60px;text-align:center;position:relative}
+        .blog-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,0.06) 0%,transparent 60%);pointer-events:none}
+        .blog-hero h1{font-size:clamp(2.2rem,5vw,4rem);margin-bottom:0.8rem}
+        .blog-hero p{color:var(--color-gray);font-size:1rem;font-weight:300;max-width:520px;margin:0 auto}
+
+        .blog-filters{max-width:1100px;margin:0 auto var(--space-md);padding:0 var(--space-md);display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center}
+        .blog-filter{padding:8px 18px;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gray);border:1px solid var(--color-border);border-radius:30px;cursor:pointer;transition:all 0.3s;background:transparent;font-family:var(--font-body)}
+        .blog-filter:hover,.blog-filter.active{color:var(--color-black);background:var(--color-gold);border-color:var(--color-gold)}
+
+        /* Featured Post */
+        .featured-post{max-width:1100px;margin:0 auto var(--space-xl);padding:0 var(--space-md);cursor:pointer}
+        .featured-post-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;transition:transform 0.4s}
+        .featured-post-inner:hover{transform:translateY(-4px)}
+        .featured-img{width:100%;height:100%;min-height:350px;object-fit:cover}
+        .featured-body{padding:2rem;display:flex;flex-direction:column;justify-content:center}
+        .featured-meta{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.8rem}
+        .featured-title{font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.2;margin-bottom:1rem}
+        .featured-excerpt{font-size:0.95rem;color:var(--color-gray);line-height:1.7;font-weight:300;margin-bottom:1.5rem}
+        .read-more{font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);display:inline-flex;align-items:center;gap:8px;transition:gap 0.3s}
+        .read-more:hover{gap:14px}
+
+        /* Blog Grid */
+        .blog-grid{max-width:1100px;margin:0 auto;padding:0 var(--space-md) var(--space-xl);display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem}
+
+        .blog-card{background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:10px;overflow:hidden;cursor:pointer;transition:transform 0.4s,box-shadow 0.4s}
+        .blog-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+        .blog-card-img{width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform 0.6s}
+        .blog-card:hover .blog-card-img{transform:scale(1.04)}
+        .blog-card-img-wrap{overflow:hidden}
+        .blog-card-body{padding:1.5rem}
+        .blog-card-meta{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.6rem;display:flex;gap:1rem;align-items:center}
+        .blog-card-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--color-gray)}
+        .blog-card-title{font-family:var(--font-heading);font-size:1.2rem;line-height:1.3;margin-bottom:0.6rem;font-weight:500}
+        .blog-card-excerpt{font-size:0.85rem;color:var(--color-gray);line-height:1.6;font-weight:300;margin-bottom:1rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+        .blog-card .read-more{font-size:0.7rem}
+
+        .blog-empty{text-align:center;padding:80px 0;color:var(--color-gray);max-width:1100px;margin:0 auto}
+        .blog-empty h3{font-size:1.3rem;color:var(--color-ivory);margin-bottom:0.5rem}
+
+        .blog-no-img{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,rgba(201,169,110,0.1),rgba(30,30,30,1));display:flex;align-items:center;justify-content:center;font-size:3rem;color:rgba(201,169,110,0.2)}
+
+        @media(max-width:768px){
+            .featured-post-inner{grid-template-columns:1fr}
+            .featured-img{min-height:220px}
+            .blog-grid{grid-template-columns:1fr}
+        }
+        @media(max-width:480px){
+            .featured-body{padding:1.2rem}
+            .blog-card-body{padding:1rem}
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="blog.html" class="nav-link" style="color:var(--color-gold)">Journal</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="#" class="nav-link" id="nav-auth-btn">Sign In</a>
+                <a href="#" class="nav-link cart-link" id="open-cart">Cart <span class="cart-badge" id="cart-badge">0</span></a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <section class="blog-hero">
+        <p class="section-label">The Journal</p>
+        <h1>Beauty Insights</h1>
+        <p>Skincare science, product research, and rituals — curated by the VELORÉ team.</p>
+    </section>
+
+    <div class="blog-filters" id="blog-filters">
+        <button class="blog-filter active" data-cat="all">All</button>
+        <button class="blog-filter" data-cat="skincare">Skincare</button>
+        <button class="blog-filter" data-cat="ingredients">Ingredients</button>
+        <button class="blog-filter" data-cat="rituals">Rituals</button>
+        <button class="blog-filter" data-cat="research">Research</button>
+    </div>
+
+    <!-- Featured Post -->
+    <div class="featured-post" id="featured-post" style="display:none"></div>
+
+    <!-- Blog Grid -->
+    <div class="blog-grid" id="blog-grid"></div>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer" class="cart-drawer">
+        <div class="cart-overlay" id="cart-overlay"></div>
+        <div class="cart-panel">
+            <div class="cart-header"><h3>Your Cart</h3><button id="close-cart" class="auth-close">&times;</button></div>
+            <div class="cart-items" id="cart-items"></div>
+            <div class="cart-footer">
+                <div class="cart-total"><span>Total</span><span id="cart-total-price">₹0</span></div>
+                <button id="cart-checkout-btn" style="width:100%;padding:16px;background:var(--color-gold);color:var(--color-black);border:none;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:0.85rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand"><p class="footer-logo">VELORÉ</p><p class="footer-tagline">Crafted for timeless beauty</p></div>
+                <div class="footer-links">
+                    <div class="footer-col"><h4>Explore</h4><a href="shop.html">Shop</a><a href="blog.html">Journal</a></div>
+                    <div class="footer-col"><h4>Support</h4><a href="contact.html">Contact Us</a><a href="#">Shipping</a></div>
+                    <div class="footer-col"><h4>Connect</h4><a href="#">Instagram</a><a href="#">Pinterest</a></div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2026 VELORÉ. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/premium.js"></script>
+    <script>
+    let activeCategory = 'all';
+
+    async function loadBlogs() {
+        const grid = document.getElementById('blog-grid');
+        const featured = document.getElementById('featured-post');
+        let url = `/api/blogs`;
+        if (activeCategory !== 'all') url += `?category=${activeCategory}`;
+
+        try {
+            const res = await fetch(url);
+            const blogs = await res.json();
+
+            if (!blogs.length) {
+                featured.style.display = 'none';
+                grid.innerHTML = '<div class="blog-empty"><h3>No posts yet</h3><p>Check back soon for skincare insights and product research.</p></div>';
+                return;
+            }
+
+            // First post = featured
+            const first = blogs[0];
+            featured.style.display = 'block';
+            featured.onclick = () => window.location.href = `blog-post.html?slug=${first.slug || first._id}`;
+            featured.innerHTML = `
+                <div class="featured-post-inner">
+                    ${first.coverImage
+                        ? `<img class="featured-img" src="${first.coverImage}" alt="${first.title}" loading="lazy">`
+                        : `<div class="blog-no-img" style="min-height:350px;">✦</div>`}
+                    <div class="featured-body">
+                        <p class="featured-meta">${first.category?.toUpperCase() || 'SKINCARE'} <span class="dot"></span> ${first.readTime || 3} min read</p>
+                        <h2 class="featured-title">${first.title}</h2>
+                        <p class="featured-excerpt">${first.excerpt || first.content.substring(0, 200)}...</p>
+                        <span class="read-more">Read Article →</span>
+                    </div>
+                </div>
+            `;
+
+            // Rest of blogs
+            const rest = blogs.slice(1);
+            if (!rest.length) { grid.innerHTML = ''; return; }
+
+            grid.innerHTML = rest.map(b => `
+                <article class="blog-card" onclick="window.location.href='blog-post.html?slug=${b.slug || b._id}'">
+                    <div class="blog-card-img-wrap">
+                        ${b.coverImage
+                            ? `<img class="blog-card-img" src="${b.coverImage}" alt="${b.title}" loading="lazy">`
+                            : `<div class="blog-no-img">✦</div>`}
+                    </div>
+                    <div class="blog-card-body">
+                        <p class="blog-card-meta">
+                            <span>${b.category?.toUpperCase() || 'SKINCARE'}</span>
+                            <span class="dot"></span>
+                            <span>${new Date(b.createdAt).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'})}</span>
+                            <span class="dot"></span>
+                            <span>${b.readTime || 3} min read</span>
+                        </p>
+                        <h3 class="blog-card-title">${b.title}</h3>
+                        <p class="blog-card-excerpt">${b.excerpt || b.content.substring(0, 150)}</p>
+                        <span class="read-more">Read More →</span>
+                    </div>
+                </article>
+            `).join('');
+
+        } catch(e) {
+            console.error(e);
+            grid.innerHTML = '<div class="blog-empty"><h3>Error loading posts</h3><p>Ensure the server is running.</p></div>';
+        }
+    }
+
+    // Filters
+    document.querySelectorAll('.blog-filter').forEach(f => f.addEventListener('click', () => {
+        document.querySelectorAll('.blog-filter').forEach(x => x.classList.remove('active'));
+        f.classList.add('active');
+        activeCategory = f.dataset.cat;
+        loadBlogs();
+    }));
+
+    // Mobile nav
+    const toggle = document.getElementById('nav-toggle');
+    if(toggle) toggle.addEventListener('click', () => { document.getElementById('nav-links').classList.toggle('open'); toggle.classList.toggle('active'); });
+
+    // Auth
+    const authBtn = document.getElementById('nav-auth-btn');
+    const token = localStorage.getItem('token'), userName = localStorage.getItem('userName');
+    if (token && userName && authBtn) { authBtn.innerText = `Hi, ${userName}`; authBtn.href = 'account.html'; }
+
+    loadBlogs();
+    </script>
+</body>
+</html>

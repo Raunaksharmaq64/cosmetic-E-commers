@@ -80,7 +80,7 @@ const Particles = (() => {
         isActive = true;
         resize();
 
-        const count = window.innerWidth <= 768 ? 0 : window.innerWidth <= 1024 ? 20 : 40;
+        const count = window.innerWidth <= 768 ? 0 : window.innerWidth <= 1024 ? 10 : 20;
         particles = [];
         for (let i = 0; i < count; i++) {
             particles.push(new Particle());

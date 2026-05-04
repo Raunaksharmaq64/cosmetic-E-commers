@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/product-page.css">
+</head>
+<body>
+    <nav id="navbar" style="background:rgba(15,15,15,0.5);backdrop-filter:blur(10px);padding:0.6rem 0">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="#" class="nav-link" id="nav-auth-btn">Sign In</a>
+                <a href="#" class="nav-link cart-link" id="open-cart">Cart <span class="cart-badge" id="cart-badge">0</span></a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="split-layout" id="pdp-container" style="display:none">
+        <div class="product-visual">
+            <div class="light-leak"></div>
+            <div class="zoom-container" id="zoom-container">
+                <img id="pdp-img" src="" alt="Product">
+            </div>
+        </div>
+        <div class="product-details">
+            <p class="pdp-category" id="pdp-category">LUXURY COLLECTION</p>
+            <h1 class="pdp-title" id="pdp-name">Loading...</h1>
+            <p class="pdp-rating" id="pdp-rating"></p>
+            <p class="pdp-price" id="pdp-price">₹--</p>
+            <p class="pdp-size" id="pdp-size"></p>
+            <p class="pdp-stock" id="pdp-stock"></p>
+            <p class="pdp-desc" id="pdp-desc"></p>
+
+            <div class="pdp-section" id="pdp-ingredients-section" style="display:none">
+                <h3>Key Ingredients</h3>
+                <ul id="pdp-ingredients"></ul>
+            </div>
+            <div class="pdp-section" id="pdp-howtouse-section" style="display:none">
+                <h3>The Ritual</h3>
+                <p id="pdp-howtouse"></p>
+            </div>
+
+            <div class="pdp-actions">
+                <button class="pdp-cart-btn" id="pdp-add-cart">Add to Cart</button>
+                <button class="pdp-wishlist-btn" id="pdp-wishlist">♡</button>
+                <button class="pdp-buy-btn" id="pdp-buy-btn">Buy Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div id="reviews-section" class="reviews-section" style="display:none">
+        <div class="reviews-container">
+            <h2>Customer Reviews</h2>
+            <form id="review-form" class="review-form">
+                <div class="star-input" id="star-input">
+                    <span data-star="1">☆</span><span data-star="2">☆</span><span data-star="3">☆</span><span data-star="4">☆</span><span data-star="5">☆</span>
+                </div>
+                <textarea id="review-comment" placeholder="Share your experience..." rows="3"></textarea>
+                <button type="submit" class="review-submit">Submit Review</button>
+            </form>
+            <div id="reviews-list"></div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div id="related-section" class="related-section" style="display:none">
+        <div class="related-container">
+            <p class="section-label">You May Also Love</p>
+            <div class="related-grid" id="related-grid"></div>
+        </div>
+    </div>
+
+    <div id="pdp-error" style="display:none;text-align:center;padding:200px 20px;min-height:100vh">
+        <h2>Product not found.</h2>
+        <a href="shop.html" style="color:var(--color-gold);text-decoration:underline;margin-top:1rem;display:inline-block">Browse Shop</a>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer" class="cart-drawer">
+        <div class="cart-overlay" id="cart-overlay"></div>
+        <div class="cart-panel">
+            <div class="cart-header"><h3>Your Cart</h3><button id="close-cart" class="auth-close">&times;</button></div>
+            <div class="cart-items" id="cart-items"></div>
+            <div class="cart-footer">
+                <div class="cart-total"><span>Total</span><span id="cart-total-price">₹0</span></div>
+                <button id="cart-checkout-btn" style="width:100%;padding:16px;background:var(--color-gold);color:var(--color-black);border:none;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:0.85rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/premium.js"></script>
+    <script src="js/product-page.js"></script>
+</body>
+</html>

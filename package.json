@@ -1,0 +1,34 @@
+{
+  "name": "3d-website",
+  "version": "1.0.0",
+  "description": "A high-end, award-winning style luxury e-commerce landing page built to demonstrate advanced front-end web development, 3D interactions, and premium aesthetics.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Raunaksharmaq64/cosmetic-E-commers.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Raunaksharmaq64/cosmetic-E-commers/issues"
+  },
+  "homepage": "https://github.com/Raunaksharmaq64/cosmetic-E-commers#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.1",
+    "multer": "^2.1.1",
+    "razorpay": "^2.9.6"
+  }
+}

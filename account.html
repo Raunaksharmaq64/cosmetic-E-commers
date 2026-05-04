@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — My Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{overflow-x:hidden}
+        #navbar{background:rgba(15,15,15,0.85);backdrop-filter:blur(12px);padding:0.6rem 0}
+        .account-page{max-width:1100px;margin:0 auto;padding:120px var(--space-md) var(--space-xl)}
+        .account-header{margin-bottom:var(--space-lg)}
+        .account-header h1{font-size:clamp(2rem,4vw,3rem);margin-bottom:0.5rem}
+        .account-header p{color:var(--color-gray);font-size:0.95rem}
+
+        .account-tabs{display:flex;gap:0;border-bottom:1px solid var(--color-border);margin-bottom:var(--space-lg);overflow-x:auto}
+        .account-tab{padding:14px 24px;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gray);cursor:pointer;border:none;background:none;font-family:var(--font-body);border-bottom:2px solid transparent;transition:all 0.3s;white-space:nowrap}
+        .account-tab:hover{color:var(--color-ivory)}
+        .account-tab.active{color:var(--color-gold);border-bottom-color:var(--color-gold)}
+
+        .tab-content{display:none;animation:fadeIn 0.4s ease}
+        .tab-content.active{display:block}
+
+        /* Orders */
+        .order-card{background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:1.5rem;margin-bottom:1rem}
+        .order-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem}
+        .order-id{font-size:0.75rem;color:var(--color-gray);letter-spacing:0.1em}
+        .order-date{font-size:0.8rem;color:var(--color-gray)}
+        .order-status{padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+        .status-created{background:rgba(255,193,7,0.15);color:#ffc107}
+        .status-paid{background:rgba(76,175,80,0.15);color:#4caf50}
+        .status-processing{background:rgba(33,150,243,0.15);color:#2196f3}
+        .status-shipped{background:rgba(156,39,176,0.15);color:#ce93d8}
+        .status-delivered{background:rgba(76,175,80,0.15);color:#4caf50}
+
+        .order-items{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
+        .order-item{display:flex;gap:0.8rem;align-items:center}
+        .order-item img{width:50px;height:50px;object-fit:cover;border-radius:6px;background:#1a1a1a}
+        .order-item-name{font-size:0.85rem}
+        .order-item-qty{font-size:0.75rem;color:var(--color-gray)}
+        .order-amount{font-size:1.1rem;color:var(--color-gold);font-weight:500}
+
+        /* Tracking */
+        .tracking-bar{display:flex;align-items:center;gap:0;margin-top:1rem;padding:1rem 0}
+        .track-step{flex:1;text-align:center;position:relative}
+        .track-dot{width:14px;height:14px;border-radius:50%;background:var(--color-border);margin:0 auto 6px;position:relative;z-index:2;transition:background 0.3s}
+        .track-step.done .track-dot{background:var(--color-gold)}
+        .track-step.current .track-dot{background:var(--color-gold);box-shadow:0 0 12px rgba(201,169,110,0.5)}
+        .track-label{font-size:0.65rem;color:var(--color-gray);letter-spacing:0.05em;text-transform:uppercase}
+        .track-step.done .track-label,.track-step.current .track-label{color:var(--color-gold)}
+        .track-line{position:absolute;top:7px;left:50%;right:-50%;height:2px;background:var(--color-border);z-index:1}
+        .track-step.done .track-line{background:var(--color-gold)}
+        .track-step:last-child .track-line{display:none}
+
+        /* Wishlist */
+        .wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+        .wishlist-item{background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform 0.3s}
+        .wishlist-item:hover{transform:translateY(-4px)}
+        .wishlist-item img{width:100%;aspect-ratio:1/1;object-fit:cover}
+        .wishlist-item-body{padding:1rem}
+        .wishlist-item-name{font-size:0.9rem;margin-bottom:0.3rem}
+        .wishlist-item-price{font-size:0.85rem;color:var(--color-gold)}
+        .wishlist-actions{display:flex;gap:0.5rem;margin-top:0.8rem}
+        .wishlist-actions button{flex:1;padding:8px;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;font-family:var(--font-body);transition:all 0.3s}
+        .wl-cart-btn{background:var(--color-gold);color:var(--color-black);border:none}
+        .wl-remove-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--color-gray)}
+        .wl-remove-btn:hover{border-color:#ff6b6b;color:#ff6b6b}
+
+        /* Profile */
+        .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+        .profile-field label{display:block;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gray);margin-bottom:0.4rem}
+        .profile-field input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:12px 14px;color:var(--color-ivory);font-family:var(--font-body);font-size:0.9rem;border-radius:4px;outline:none}
+        .profile-field input:focus{border-color:var(--color-gold)}
+        .empty-state{text-align:center;padding:60px 0;color:var(--color-gray)}
+        .empty-state h3{font-size:1.3rem;color:var(--color-ivory);margin-bottom:0.5rem}
+        .empty-state a{color:var(--color-gold);text-decoration:underline}
+
+        @media(max-width:768px){
+            .account-tabs{gap:0}
+            .account-tab{padding:12px 16px;font-size:0.7rem}
+            .profile-grid{grid-template-columns:1fr}
+            .order-header{flex-direction:column;align-items:flex-start}
+            .wishlist-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+        }
+        @media(max-width:480px){
+            .tracking-bar{flex-wrap:wrap;gap:0.5rem}
+            .track-line{display:none!important}
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="#" class="nav-link" id="nav-auth-btn">Sign In</a>
+                <a href="#" class="nav-link cart-link" id="open-cart">Cart <span class="cart-badge" id="cart-badge">0</span></a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="account-page" id="account-page">
+        <div class="account-header">
+            <h1 id="account-greeting">My Account</h1>
+            <p id="account-email"></p>
+        </div>
+
+        <div class="account-tabs">
+            <button class="account-tab active" data-tab="orders">Orders</button>
+            <button class="account-tab" data-tab="wishlist">Wishlist</button>
+            <button class="account-tab" data-tab="profile">Profile</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-content active" id="tab-orders">
+            <div id="orders-list"></div>
+        </div>
+
+        <!-- Wishlist Tab -->
+        <div class="tab-content" id="tab-wishlist">
+            <div class="wishlist-grid" id="wishlist-grid"></div>
+        </div>
+
+        <!-- Profile Tab -->
+        <div class="tab-content" id="tab-profile">
+            <div class="profile-grid" id="profile-form">
+                <div class="profile-field"><label>Name</label><input id="p-name" readonly></div>
+                <div class="profile-field"><label>Email</label><input id="p-email" readonly></div>
+                <div class="profile-field"><label>Mobile</label><input id="p-mobile" readonly></div>
+                <div class="profile-field"><label>Member Since</label><input id="p-since" readonly></div>
+            </div>
+            <button onclick="localStorage.clear();window.location.href='index.html'" style="margin-top:2rem;padding:12px 30px;background:transparent;border:1px solid #ff6b6b;color:#ff6b6b;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- Not logged in -->
+    <div id="not-logged-in" style="display:none;text-align:center;padding:200px var(--space-md);min-height:100vh;">
+        <h2 style="font-size:2rem;margin-bottom:1rem;">Sign In Required</h2>
+        <p style="color:var(--color-gray);margin-bottom:2rem;">Please sign in to view your account.</p>
+        <a href="index.html" style="padding:14px 30px;background:var(--color-gold);color:var(--color-black);border-radius:4px;text-decoration:none;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;">Go to Homepage</a>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer" class="cart-drawer">
+        <div class="cart-overlay" id="cart-overlay"></div>
+        <div class="cart-panel">
+            <div class="cart-header"><h3>Your Cart</h3><button id="close-cart" class="auth-close">&times;</button></div>
+            <div class="cart-items" id="cart-items"></div>
+            <div class="cart-footer">
+                <div class="cart-total"><span>Total</span><span id="cart-total-price">₹0</span></div>
+                <button id="cart-checkout-btn" style="width:100%;padding:16px;background:var(--color-gold);color:var(--color-black);border:none;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:0.85rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/premium.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Mobile nav
+        const toggle = document.getElementById('nav-toggle');
+        if(toggle) toggle.addEventListener('click', () => { document.getElementById('nav-links').classList.toggle('open'); toggle.classList.toggle('active'); });
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            document.getElementById('account-page').style.display = 'none';
+            document.getElementById('not-logged-in').style.display = 'block';
+            return;
+        }
+
+        // Auth btn
+        const authBtn = document.getElementById('nav-auth-btn');
+        const userName = localStorage.getItem('userName');
+        if (userName && authBtn) { authBtn.innerText = `Hi, ${userName}`; authBtn.href = 'account.html'; }
+
+        // Load profile
+        try {
+            const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+            if (res.ok) {
+                const user = await res.json();
+                document.getElementById('account-greeting').textContent = `Welcome, ${user.name}`;
+                document.getElementById('account-email').textContent = user.email;
+                document.getElementById('p-name').value = user.name;
+                document.getElementById('p-email').value = user.email;
+                document.getElementById('p-mobile').value = user.mobile;
+                document.getElementById('p-since').value = new Date(user.createdAt).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' });
+            }
+        } catch(e) { console.error(e); }
+
+        // Load orders
+        try {
+            const res = await fetch('/api/auth/orders', { headers: { Authorization: `Bearer ${token}` } });
+            const orders = await res.json();
+            const container = document.getElementById('orders-list');
+
+            if (!orders.length) {
+                container.innerHTML = '<div class="empty-state"><h3>No orders yet</h3><p>Start shopping to see your orders here.</p><a href="shop.html">Browse Shop</a></div>';
+            } else {
+                container.innerHTML = orders.map(o => {
+                    const statuses = ['created','paid','processing','shipped','delivered'];
+                    const currentIdx = statuses.indexOf(o.status);
+                    const trackingHTML = statuses.map((s,i) => `
+                        <div class="track-step ${i<currentIdx?'done':''} ${i===currentIdx?'current':''}">
+                            <div class="track-line"></div>
+                            <div class="track-dot"></div>
+                            <div class="track-label">${s}</div>
+                        </div>
+                    `).join('');
+
+                    return `<div class="order-card">
+                        <div class="order-header">
+                            <div><span class="order-id">Order #${o._id.slice(-8).toUpperCase()}</span></div>
+                            <span class="order-date">${new Date(o.createdAt).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'})}</span>
+                            <span class="order-status status-${o.status}">${o.status}</span>
+                        </div>
+                        <div class="order-items">${o.items.map(item=>`
+                            <div class="order-item">
+                                <img src="${item.imageSrc}" alt="${item.name}">
+                                <div><p class="order-item-name">${item.name}</p><p class="order-item-qty">Qty: ${item.quantity}</p></div>
+                            </div>
+                        `).join('')}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="order-amount">₹${o.amount?.toLocaleString()}</span>
+                            ${o.couponUsed ? `<span style="font-size:0.75rem;color:var(--color-gold);">Coupon: ${o.couponUsed} (-₹${o.discount})</span>` : ''}
+                        </div>
+                        <div class="tracking-bar">${trackingHTML}</div>
+                    </div>`;
+                }).join('');
+            }
+        } catch(e) { console.error(e); }
+
+        // Load wishlist
+        function renderWishlist() {
+            const list = window.VeloreWishlist.get();
+            const grid = document.getElementById('wishlist-grid');
+            if (!list.length) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3>Your wishlist is empty</h3><p>Save products you love by clicking the ♡ icon.</p><a href="shop.html">Browse Shop</a></div>';
+                return;
+            }
+            grid.innerHTML = list.map(p => `
+                <div class="wishlist-item" onclick="window.location.href='product.html?id=${p.id}'">
+                    <img src="${p.imageSrc}" alt="${p.name}">
+                    <div class="wishlist-item-body">
+                        <p class="wishlist-item-name">${p.name}</p>
+                        <p class="wishlist-item-price">₹${p.price?.toLocaleString()}</p>
+                        <div class="wishlist-actions">
+                            <button class="wl-cart-btn" onclick="event.stopPropagation();VeloreCart.add({id:'${p.id}',name:'${p.name.replace(/'/g,"\\'")}',price:${p.price},imageSrc:'${p.imageSrc}',quantity:1});VeloreToast.show('Added to cart','cart')">Add to Cart</button>
+                            <button class="wl-remove-btn" onclick="event.stopPropagation();VeloreWishlist.remove('${p.id}');renderWishlist();">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        renderWishlist();
+        window.renderWishlist = renderWishlist;
+
+        // Tab switching
+        document.querySelectorAll('.account-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+            });
+        });
+    });
+    </script>
+</body>
+</html>

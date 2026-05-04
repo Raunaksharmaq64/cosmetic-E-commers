@@ -150,11 +150,12 @@ const Animations = (() => {
         /* Split text and prepare */
         splitTextElements();
         
-        /* Image Parallax */
+        /* Image Parallax (Optimized) */
         gsap.utils.toArray('.cinematic-img-wrapper img, .product-img-wrapper img').forEach(img => {
-            gsap.set(img, { objectPosition: "50% 0%" });
+            // Give img extra height so it can translate without showing empty space
+            gsap.set(img, { height: "120%", yPercent: -10 });
             gsap.to(img, {
-                objectPosition: "50% 100%",
+                yPercent: 10,
                 ease: "none",
                 scrollTrigger: {
                     trigger: img.parentElement,
