@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — Luxury Skincare & Fragrance</title>
+    <meta name="description" content="VELORÉ — Premium skincare and fragrance crafted for timeless beauty. Discover luxury redefined with rare botanicals and cutting-edge science.">
+    <meta property="og:title" content="VELORÉ — Luxury Skincare & Fragrance">
+    <meta property="og:description" content="Crafted for timeless beauty. Luxury skincare infused with rare botanicals.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="images/product-oil.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ========== EFFECTS ========== -->
+    <canvas id="trail-canvas"></canvas>
+    <div id="noise-overlay"></div>
+    <div id="ambient-spotlight"></div>
+
+    <!-- ========== PRELOADER ========== -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-logo" aria-hidden="true">
+                <span>V</span><span>E</span><span>L</span><span>O</span><span>R</span><span>É</span>
+            </div>
+            <div class="preloader-bar">
+                <div class="preloader-progress" id="preloader-progress"></div>
+            </div>
+            <div class="preloader-percent" id="preloader-percent">0%</div>
+        </div>
+    </div>
+
+    <!-- ========== CUSTOM CURSOR ========== -->
+    <div id="cursor-glow"></div>
+    <div id="cursor-dot"></div>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav id="navbar" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" id="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link">Home</a>
+                <a href="#products" class="nav-link">Products</a>
+                <a href="#story" class="nav-link">Story</a>
+                <a href="#cta" class="nav-link">Contact</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== SECTION 1 — HERO ========== -->
+    <section id="hero" class="scroll-section" aria-label="Hero">
+        <div class="canvas-wrapper">
+            <canvas id="hero-canvas"></canvas>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-brand">VELORÉ</p>
+            <h1 class="hero-title">
+                <span class="title-line"><span class="title-word">LUXURY</span></span>
+                <span class="title-line"><span class="title-word"> REDEFINED</span></span>
+            </h1>
+            <p class="hero-subtitle">Crafted for timeless beauty</p>
+            <div class="scroll-indicator" id="scroll-indicator">
+                <span>Scroll to explore</span>
+                <div class="scroll-line"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== BRAND PHILOSOPHY DIVIDER ========== -->
+    <section id="philosophy" class="philosophy-section" aria-label="Brand Philosophy">
+        <div class="watermark-text" aria-hidden="true">INTENTION</div>
+        <div class="philosophy-container">
+            <div class="philosophy-line"></div>
+            <p class="philosophy-label">Our Philosophy</p>
+            <h2 class="philosophy-title split-text">
+                We believe beauty is not<br>
+                <em>manufactured</em> — it is <em>revealed.</em>
+            </h2>
+            <p class="philosophy-body">Every formula begins with intention. Every ingredient is chosen with reverence. What touches your skin should honor it.</p>
+            <div class="philosophy-stats">
+                <div class="stat">
+                    <span class="stat-number">97%</span>
+                    <span class="stat-label">Natural Ingredients</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Rare Botanicals</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Harsh Chemicals</span>
+                </div>
+            </div>
+            <div class="philosophy-line"></div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 2 — CINEMATIC ========== -->
+    <section id="cinematic" aria-label="Cinematic Showcase">
+        <div class="watermark-text watermark-right" aria-hidden="true">RITUAL</div>
+        <div class="cinematic-grid">
+            <div class="cinematic-panel cinematic-panel-1">
+                <div class="cinematic-img-wrapper">
+                    <img src="luminea botinual renual cream facepack/ezgif-frame-120.png" alt="Botanical Renewal Cream close-up" loading="lazy">
+                    <div class="cinematic-light-leak"></div>
+                </div>
+                <div class="cinematic-text">
+                    <p class="section-label">The Ritual</p>
+                    <h2 class="split-text">A ritual,<br>not a routine</h2>
+                    <p class="cinematic-desc">Every application is a moment of indulgence — silk textures that melt into skin, leaving nothing but radiance.</p>
+                </div>
+            </div>
+            <div class="cinematic-panel cinematic-panel-2">
+                <div class="cinematic-img-wrapper cinematic-img-large">
+                    <canvas id="story-canvas" style="width: 100%; height: 100%; object-fit: cover;"></canvas>
+                    <div class="cinematic-light-leak"></div>
+                </div>
+                <div class="cinematic-text">
+                    <p class="section-label">The Craft</p>
+                    <h2 class="split-text">Where science<br>meets sensuality</h2>
+                    <p class="cinematic-desc">Precision-formulated with ocean-derived actives, each drop delivers a surge of deep, lasting moisture.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== INFINITE MARQUEE ========== -->
+    <div class="marquee-section">
+        <div class="marquee-content">
+            <span class="marquee-text">• PURE LUXURY • RARE BOTANICALS • TIMELESS BEAUTY </span>
+            <span class="marquee-text">• PURE LUXURY • RARE BOTANICALS • TIMELESS BEAUTY </span>
+            <span class="marquee-text">• PURE LUXURY • RARE BOTANICALS • TIMELESS BEAUTY </span>
+            <span class="marquee-text">• PURE LUXURY • RARE BOTANICALS • TIMELESS BEAUTY </span>
+        </div>
+    </div>
+
+    <!-- ========== SECTION 4 — PRODUCT GRID ========== -->
+    <section id="products" aria-label="Product Collection">
+        <div class="products-container">
+            <div class="products-header">
+                <p class="section-label">The Collection</p>
+                <h2 class="section-title split-text">Curated for You</h2>
+            </div>
+            <div class="products-grid" id="products-grid">
+                <!-- Product 1 -->
+                <article class="product-card" id="product-1">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="luminea botinual renual cream facepack/ezgif-frame-060.png" alt="Botanical Renewal Cream" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Botanical Renewal Cream</h3>
+                        <p class="product-desc">Silk-touch hydration infused with rare botanicals</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$185</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 2 -->
+                <article class="product-card" id="product-2">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="luminea hydrating serum/ezgif-frame-040.png" alt="Aqua Hydrating Serum" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Aqua Hydrating Serum</h3>
+                        <p class="product-desc">Deep moisture with ocean-derived actives</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$145</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 3 -->
+                <article class="product-card" id="product-3">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="images/product-oil.png" alt="Midnight Recovery Oil" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Midnight Recovery Oil</h3>
+                        <p class="product-desc">Overnight renewal for luminous mornings</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$165</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 4 -->
+                <article class="product-card" id="product-4">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="images/product-lip.png" alt="Velvet Matte Lip Elixir" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Velvet Matte Lip Elixir</h3>
+                        <p class="product-desc">Weightless color that whispers luxury</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$68</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 5 -->
+                <article class="product-card" id="product-5">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="images/product-balm.png" alt="Rose Petal Cleansing Balm" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Rose Petal Cleansing Balm</h3>
+                        <p class="product-desc">Melts away the day, reveals the glow</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$92</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 6 -->
+                <article class="product-card" id="product-6">
+                    <div class="product-glare"></div>
+                    <div class="product-img-wrapper">
+                        <img src="images/product-essence.png" alt="Éclat Brightening Essence" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Éclat Brightening Essence</h3>
+                        <p class="product-desc">A veil of light for porcelain radiance</p>
+                        <div class="product-bottom">
+                            <p class="product-price">$125</p>
+                            <button class="buy-btn">Buy Now</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 5 — CTA ========== -->
+    <section id="cta" aria-label="Call to Action">
+        <div class="watermark-text watermark-center" aria-hidden="true">ETERNAL</div>
+        <div class="cta-content">
+            <p class="section-label">Begin Your Journey</p>
+            <h2 class="cta-title split-text">Elevate Your Beauty</h2>
+            <p class="cta-subtitle">A scent that lingers in memory. A touch that transforms.</p>
+            <button class="magnetic-btn" id="cta-btn">
+                <span class="btn-text">Discover More</span>
+                <span class="btn-circle"></span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <p class="footer-logo">VELORÉ</p>
+                    <p class="footer-tagline">Crafted for timeless beauty</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Explore</h4>
+                        <a href="#products" class="magnetic-link">Products</a>
+                        <a href="#story" class="magnetic-link">Our Story</a>
+                        <a href="#cinematic" class="magnetic-link">The Craft</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Support</h4>
+                        <a href="#" class="magnetic-link">Shipping</a>
+                        <a href="#" class="magnetic-link">Returns</a>
+                        <a href="#" class="magnetic-link">FAQ</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Connect</h4>
+                        <a href="#" class="magnetic-link">Instagram</a>
+                        <a href="#" class="magnetic-link">Pinterest</a>
+                        <a href="#" class="magnetic-link">Newsletter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 VELORÉ. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="js/preloader.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/lenis.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/interactions.js"></script>
+</body>
+</html>
