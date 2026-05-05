@@ -208,11 +208,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     window.deleteAddress = async function(id) {
-        if (!confirm('Delete this address?')) return;
-        try {
-            const res = await fetch(`/api/auth/address/${id}`, { method:'DELETE', headers });
-            if (res.ok) { const a = await res.json(); renderAddresses(a); userData.addresses = a; VeloreToast.show('Address deleted','success'); }
-        } catch(e) { VeloreToast.show('Failed to delete','error'); }
+        showConfirmModal(
+            'Delete Address',
+            'Are you sure you want to remove this saved address?',
+            'Delete',
+            async () => {
+                try {
+                    const res = await fetch(`/api/auth/address/${id}`, { method:'DELETE', headers });
+                    if (res.ok) { const a = await res.json(); renderAddresses(a); userData.addresses = a; VeloreToast.show('Address deleted','success'); }
+                } catch(e) { VeloreToast.show('Failed to delete','error'); }
+            },
+            '#ff6b6b'
+        );
     };
 
     window.setDefault = async function(id) {

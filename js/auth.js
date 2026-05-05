@@ -48,14 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (navLinks) navLinks.classList.remove('open');
             if (navToggle) { navToggle.classList.remove('active'); }
             
-            // Perform logout
-            if(confirm('Are you sure you want to sign out?')) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('isAdmin');
-                window.location.reload();
-            }
+            // Show premium confirmation modal
+            showConfirmModal(
+                'Sign Out',
+                'Are you sure you want to sign out of your VELORÉ account?',
+                'Sign Out',
+                () => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('isAdmin');
+                    localStorage.removeItem('velore_signin_prompt_dismissed');
+                    window.location.reload();
+                }
+            );
         });
     } else if (authBtn) {
         // Not logged in — show Sign In and bind modal

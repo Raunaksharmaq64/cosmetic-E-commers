@@ -33,7 +33,7 @@ const Preloader = (() => {
 
         if (loadedCount >= totalCount && !isComplete) {
             isComplete = true;
-            setTimeout(revealSite, 800);
+            setTimeout(revealSite, 400); // Reduced from 800ms to 400ms
         }
     }
 
@@ -56,6 +56,7 @@ const Preloader = (() => {
         const images = new Array(srcs.length);
 
         return new Promise((resolve) => {
+            if (srcs.length === 0) { resolve([]); return; }
             let done = 0;
             srcs.forEach((src, i) => {
                 const img = new Image();
@@ -86,19 +87,24 @@ const Preloader = (() => {
         document.body.classList.add('loading');
         animateLogo();
 
-        /* Determine frame skip based on device */
+        /* Aggressive frame skipping for performance
+           Desktop: every 3rd frame  → 80 hero + 50 story = 130 images (~100MB)
+           Tablet:  every 4th frame  → 60 hero + 38 story = 98 images (~75MB)
+           Mobile:  every 6th frame  → 40 hero + 25 story = 65 images (~50MB) */
         const isMobile = window.innerWidth <= 768;
         const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
 
-        let heroStep = 1;
-        let storyStep = 1;
+        let heroStep, storyStep;
 
         if (isMobile) {
+            heroStep = 6;
+            storyStep = 6;
+        } else if (isTablet) {
+            heroStep = 4;
+            storyStep = 4;
+        } else {
             heroStep = 3;
             storyStep = 3;
-        } else if (isTablet) {
-            heroStep = 2;
-            storyStep = 2;
         }
 
         /* Build paths with frame skipping */

@@ -1,7 +1,10 @@
 // ==================== VELORÉ PREMIUM UTILITIES ====================
-// Back to Top, Recently Viewed, Newsletter Popup, Skeleton Loading
+// Back to Top, Recently Viewed, Newsletter Popup, Skeleton Loading, Sign-In Prompt
 
 (function() {
+
+    // Shared modal flag — only one popup per page visit
+    let modalShown = false;
 
     // ---- BACK TO TOP ----
     const btn = document.createElement('button');
@@ -50,10 +53,12 @@
         if (localStorage.getItem(NL_KEY)) return;
         
         setTimeout(() => {
-            if (localStorage.getItem(NL_KEY)) return;
+            // Don't show if another modal is already active or was shown
+            if (modalShown || localStorage.getItem(NL_KEY)) return;
+            modalShown = true;
             
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.4s ease;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.4s ease;transition:opacity 0.3s ease;';
 
             overlay.innerHTML = `
                 <div style="background:rgba(20,20,20,0.95);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:3rem;max-width:420px;width:90%;text-align:center;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
@@ -72,11 +77,14 @@
 
             document.body.appendChild(overlay);
 
-            document.getElementById('nl-close').addEventListener('click', () => {
+            const dismissNL = () => {
                 localStorage.setItem(NL_KEY, '1');
-                overlay.remove();
-            });
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) { localStorage.setItem(NL_KEY, '1'); overlay.remove(); } });
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            };
+
+            document.getElementById('nl-close').addEventListener('click', dismissNL);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) dismissNL(); });
 
             document.getElementById('nl-submit').addEventListener('click', async () => {
                 const email = document.getElementById('nl-email').value;
@@ -91,13 +99,13 @@
                     document.getElementById('nl-msg').textContent = data.message;
                     document.getElementById('nl-msg').style.display = 'block';
                     localStorage.setItem(NL_KEY, '1');
-                    setTimeout(() => overlay.remove(), 3000);
+                    setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 300); }, 3000);
                 } catch(err) {
                     document.getElementById('nl-msg').textContent = 'Something went wrong.';
                     document.getElementById('nl-msg').style.display = 'block';
                 }
             });
-        }, 8000); // Show after 8 seconds
+        }, 15000); // Show after 15 seconds (gives sign-in prompt priority)
     }
 
     document.addEventListener('DOMContentLoaded', showNewsletter);
@@ -126,4 +134,51 @@
     document.head.appendChild(shimmerStyle);
 
     window.VeloreSkeleton = { show: createSkeletons };
+
+    // ---- SIGN-IN PROMPT FOR GUESTS ----
+    function showSignInPrompt() {
+        const token = localStorage.getItem('token');
+        const PROMPT_KEY = 'velore_signin_prompt_dismissed';
+        
+        if (token || localStorage.getItem(PROMPT_KEY)) return;
+        
+        setTimeout(() => {
+            // Don't show if another modal beat us to it
+            if (modalShown || localStorage.getItem(PROMPT_KEY)) return;
+            modalShown = true;
+            
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.5s ease;opacity:1;transition:opacity 0.3s ease;';
+
+            overlay.innerHTML = `
+                <div style="background:linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98));border:1px solid rgba(201,169,110,0.3);border-radius:16px;padding:3rem 2.5rem;max-width:400px;width:90%;text-align:center;position:relative;box-shadow:0 30px 60px rgba(0,0,0,0.7), inset 0 0 20px rgba(201,169,110,0.05);">
+                    <button id="sip-close" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#888;font-size:1.5rem;cursor:pointer;transition:color 0.3s;">✕</button>
+                    <div style="width:60px;height:60px;border-radius:50%;background:rgba(201,169,110,0.1);color:#C9A96E;font-size:1.8rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;border:1px solid rgba(201,169,110,0.2);">✨</div>
+                    <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#f5f5f5;margin-bottom:0.8rem;letter-spacing:0.05em;">Unlock the Premium Experience</h3>
+                    <p style="color:#aaa;font-size:0.9rem;margin-bottom:2rem;line-height:1.6;">Sign in to access exclusive member-only offers, faster checkout, and personalized product recommendations.</p>
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        <a href="account.html" style="display:block;padding:14px;background:#C9A96E;color:#000;text-decoration:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:transform 0.3s, box-shadow 0.3s;">Sign In / Register</a>
+                        <button id="sip-later" style="background:transparent;border:none;color:#888;font-size:0.8rem;text-decoration:underline;cursor:pointer;font-family:'Inter',sans-serif;">Maybe Later</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            const closePrompt = () => {
+                localStorage.setItem(PROMPT_KEY, '1');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            };
+
+            document.getElementById('sip-close').addEventListener('click', closePrompt);
+            document.getElementById('sip-later').addEventListener('click', closePrompt);
+            document.getElementById('sip-close').addEventListener('mouseenter', function() { this.style.color = '#fff'; });
+            document.getElementById('sip-close').addEventListener('mouseleave', function() { this.style.color = '#888'; });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closePrompt(); });
+        }, 5000); // Show after 5 seconds
+    }
+
+    document.addEventListener('DOMContentLoaded', showSignInPrompt);
+
 })();

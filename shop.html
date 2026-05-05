@@ -79,6 +79,20 @@
             .shop-card-desc{display:none}
             .filter-tab{padding:8px 14px;font-size:0.6rem}
         }
+
+        /* Public Coupons */
+        .coupons-container { max-width: 1400px; margin: -20px auto 40px; padding: 0 var(--space-md); display: flex; gap: 1.5rem; overflow-x: auto; scrollbar-width: none; }
+        .coupons-container::-webkit-scrollbar { display: none; }
+        .coupon-ticket { background: linear-gradient(135deg, rgba(30,30,30,0.8) 0%, rgba(15,15,15,0.95) 100%); border: 1px dashed rgba(201,169,110,0.4); border-radius: 12px; padding: 1.5rem; min-width: 280px; flex-shrink: 0; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .coupon-ticket:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(201,169,110,0.1); border-color: rgba(201,169,110,0.8); }
+        .coupon-ticket::before { content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background: #0a0a0a; border-radius: 50%; border-right: 1px dashed rgba(201,169,110,0.4); }
+        .coupon-ticket::after { content: ''; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background: #0a0a0a; border-radius: 50%; border-left: 1px dashed rgba(201,169,110,0.4); }
+        .coupon-percent { font-family: var(--font-heading); font-size: 2rem; color: var(--color-gold); font-weight: 600; line-height: 1; margin-bottom: 0.3rem; }
+        .coupon-title { font-size: 0.85rem; color: var(--color-ivory); font-weight: 500; margin-bottom: 0.5rem; }
+        .coupon-desc { font-size: 0.7rem; color: var(--color-gray); margin-bottom: 1rem; }
+        .coupon-code-box { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        .coupon-code { font-family: monospace; font-size: 0.9rem; color: var(--color-ivory); letter-spacing: 0.1em; }
+        .coupon-copy { font-size: 0.7rem; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body>
@@ -101,6 +115,11 @@
         <h1>Explore VELORÉ</h1>
         <p>Premium skincare, makeup & fragrances — crafted with rare botanicals.</p>
     </section>
+
+    <!-- Public Coupons Section -->
+    <div id="public-coupons-wrapper" style="display:none;">
+        <div class="coupons-container" id="public-coupons-container"></div>
+    </div>
 
     <div class="shop-controls">
         <div class="filter-tabs">
@@ -207,6 +226,57 @@
         } catch(e) { console.error(e); grid.innerHTML = '<div class="shop-empty"><h3>Error loading</h3><p>Ensure the server is running.</p></div>'; }
     }
 
+    // Clipboard fallback for HTTP environments
+    function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text);
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+    }
+
+    // Public Coupons Fetch
+    async function loadPublicCoupons() {
+        try {
+            const res = await fetch('/api/coupons/public');
+            if (!res.ok) return; // silently fail if endpoint not ready
+            const coupons = await res.json();
+            if (coupons && coupons.length > 0) {
+                document.getElementById('public-coupons-wrapper').style.display = 'block';
+                const container = document.getElementById('public-coupons-container');
+                container.innerHTML = coupons.map(c => `
+                    <div class="coupon-ticket" data-code="${c.code}">
+                        <div>
+                            <div class="coupon-percent">${c.discountPercent}% OFF</div>
+                            <div class="coupon-title">${c.title || 'Special Offer'}</div>
+                            <div class="coupon-desc">${c.description || `Applicable on orders above ₹${c.minAmount.toLocaleString()}`}</div>
+                        </div>
+                        <div class="coupon-code-box">
+                            <span class="coupon-code">${c.code}</span>
+                            <span class="coupon-copy">Copy</span>
+                        </div>
+                    </div>
+                `).join('');
+                // Attach click handlers safely
+                container.querySelectorAll('.coupon-ticket').forEach(ticket => {
+                    ticket.addEventListener('click', function() {
+                        const code = this.dataset.code;
+                        copyToClipboard(code);
+                        if (window.VeloreToast) VeloreToast.show(code + ' copied to clipboard!', 'success');
+                        const copyEl = this.querySelector('.coupon-copy');
+                        if (copyEl) { copyEl.textContent = 'Copied!'; setTimeout(() => { copyEl.textContent = 'Copy'; }, 2000); }
+                    });
+                });
+            }
+        } catch(e) { /* silently fail — server may not be running */ }
+    }
+
     // Recently Viewed
     function renderRecentlyViewed() {
         if (!window.VeloreRecent) return;
@@ -265,6 +335,7 @@
     if (token && userName && authBtn) { authBtn.innerText = `Hi, ${userName}`; authBtn.href = 'account.html'; }
 
     loadProducts();
+    loadPublicCoupons();
     setTimeout(renderRecentlyViewed, 500);
     </script>
 </body>

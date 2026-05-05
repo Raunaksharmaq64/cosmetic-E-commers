@@ -130,11 +130,14 @@ const Contact = mongoose.model('Contact', ContactSchema);
 
 const CouponSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
+  title: { type: String, default: '' },
+  description: { type: String, default: '' },
   discountPercent: { type: Number, required: true },
   minAmount: { type: Number, default: 0 },
   maxUses: { type: Number, default: 100 },
   usedCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
+  isPublic: { type: Boolean, default: false },
   expiresAt: Date
 });
 const Coupon = mongoose.model('Coupon', CouponSchema);
@@ -348,10 +351,10 @@ app.get('/api/seed', async (req, res) => {
     await Product.insertMany(products);
     // Seed coupons
     await Coupon.insertMany([
-      { code: 'WELCOME10', discountPercent: 10, minAmount: 3000, maxUses: 1000 },
-      { code: 'LUXURY20', discountPercent: 20, minAmount: 10000, maxUses: 50 },
-      { code: 'VIP15', discountPercent: 15, minAmount: 5000, maxUses: 200 },
-      { code: 'HAIR20', discountPercent: 20, minAmount: 5000, maxUses: 100 }
+      { code: 'WELCOME10', title: 'Welcome Offer', description: 'Get 10% off your first luxury order over ₹3,000.', discountPercent: 10, minAmount: 3000, maxUses: 1000, isPublic: true },
+      { code: 'LUXURY20', title: 'VIP Exclusive', description: 'Take 20% off all orders above ₹10,000.', discountPercent: 20, minAmount: 10000, maxUses: 50, isPublic: true },
+      { code: 'VIP15', title: 'Member Special', description: 'Enjoy 15% off orders over ₹5,000.', discountPercent: 15, minAmount: 5000, maxUses: 200, isPublic: false },
+      { code: 'HAIR20', title: 'Haircare Launch', description: 'Celebrate our new haircare line with 20% off.', discountPercent: 20, minAmount: 5000, maxUses: 100, isPublic: true }
     ]);
     res.json({ message: `Seeded ${products.length} products + 4 coupons!` });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -555,6 +558,13 @@ app.put('/api/auth/address/:id/default', async (req, res) => {
 });
 
 // ==================== COUPONS ====================
+
+app.get('/api/coupons/public', async (req, res) => {
+  try {
+    const coupons = await Coupon.find({ isActive: true, isPublic: true });
+    res.json(coupons);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 app.post('/api/coupon/validate', async (req, res) => {
   try {
@@ -772,6 +782,32 @@ app.delete('/api/admin/blogs/:id', adminAuth, async (req, res) => {
 app.get('/api/admin/blogs', adminAuth, async (req, res) => {
   try { res.json(await Blog.find({}).sort({ createdAt: -1 })); }
   catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Admin: Coupon Management
+app.get('/api/admin/coupons', adminAuth, async (req, res) => {
+  try { res.json(await Coupon.find({}).sort({ _id: -1 })); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/admin/coupons', adminAuth, async (req, res) => {
+  try {
+    const coupon = new Coupon(req.body);
+    await coupon.save();
+    res.status(201).json(coupon);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.put('/api/admin/coupons/:id', adminAuth, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });
+    res.json(coupon);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/admin/coupons/:id', adminAuth, async (req, res) => {
+  try {
+    await Coupon.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Coupon deleted.' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ==================== START ====================

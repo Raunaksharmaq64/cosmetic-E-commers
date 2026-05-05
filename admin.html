@@ -158,6 +158,9 @@
                 <button class="s-nav-item" data-tab="blogs">
                     <span class="s-nav-icon">✍️</span> Blogs
                 </button>
+                <button class="s-nav-item" data-tab="coupons">
+                    <span class="s-nav-icon">🎟️</span> Coupons
+                </button>
             </nav>
             <div class="sidebar-footer">
                 <a href="index.html" class="back-link"><span>←</span> Back to Store</a>
@@ -225,6 +228,7 @@
                                     <option value="skincare">Skincare</option>
                                     <option value="makeup">Makeup</option>
                                     <option value="fragrance">Fragrance</option>
+                                    <option value="haircare">Haircare</option>
                                 </select>
                             </div>
                         </div>
@@ -406,11 +410,86 @@
                     </div>
                 </div>
 
+                <!-- Coupons Tab -->
+                <div class="atab" id="atab-coupons">
+                    <div class="card" id="coupon-form-card">
+                        <div class="card-header">
+                            <h2 class="card-title" id="coupon-form-title">Add New Coupon</h2>
+                        </div>
+                        <input type="hidden" id="coupon-edit-id">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Coupon Code *</label>
+                                <input type="text" class="form-input" id="cp-code" placeholder="e.g. WELCOME10">
+                            </div>
+                            <div class="form-group">
+                                <label>Discount Percent (%) *</label>
+                                <input type="number" class="form-input" id="cp-discount" placeholder="10">
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="margin-top:1.5rem">
+                            <div class="form-group">
+                                <label>Minimum Amount (₹)</label>
+                                <input type="number" class="form-input" id="cp-minamount" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Max Uses</label>
+                                <input type="number" class="form-input" id="cp-maxuses" placeholder="100">
+                            </div>
+                        </div>
+
+                        <div class="form-grid full" style="margin-top:1.5rem">
+                            <div class="form-group">
+                                <label>Title (For Public Display)</label>
+                                <input type="text" class="form-input" id="cp-title" placeholder="e.g. New User Special">
+                            </div>
+                        </div>
+
+                        <div class="form-grid full" style="margin-top:1.5rem">
+                            <div class="form-group">
+                                <label>Description (For Public Display)</label>
+                                <input type="text" class="form-input" id="cp-desc" placeholder="Get 10% off your first luxury purchase">
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="margin-top:1.5rem">
+                            <div class="form-group" style="flex-direction:row;align-items:center;gap:10px">
+                                <input type="checkbox" id="cp-active" checked style="width:18px;height:18px">
+                                <label style="margin:0;cursor:pointer" for="cp-active">Is Active?</label>
+                            </div>
+                            <div class="form-group" style="flex-direction:row;align-items:center;gap:10px">
+                                <input type="checkbox" id="cp-public" style="width:18px;height:18px">
+                                <label style="margin:0;cursor:pointer" for="cp-public">Show Publicly on Website?</label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-primary" id="submit-coupon">Save Coupon</button>
+                            <button class="btn-secondary" id="cancel-coupon-edit" style="display:none">Cancel</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">All Coupons</h2>
+                        </div>
+                        <div class="table-container">
+                            <table class="premium-table">
+                                <thead><tr><th>Code</th><th>Discount</th><th>Min Amount</th><th>Uses</th><th>Status</th><th>Public</th><th>Actions</th></tr></thead>
+                                <tbody id="coupons-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
     <!-- Scripts -->
+    <script src="js/confirm.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Security Check: Only admins allowed
@@ -614,15 +693,22 @@
         }
 
         window.deleteProduct = async (id, name) => {
-            if (!confirm(`Delete product "${name}"?`)) return;
-            try {
-                await fetch(`/api/admin/products/${id}`, { 
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                loadProducts();
-                loadStats();
-            } catch(e) { alert('Error deleting.'); }
+            showConfirmModal(
+                'Delete Product',
+                `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+                'Delete',
+                async () => {
+                    try {
+                        await fetch(`/api/admin/products/${id}`, { 
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        loadProducts();
+                        loadStats();
+                    } catch(e) { if(window.VeloreToast) VeloreToast.show('Error deleting product','error'); }
+                },
+                '#ff6b6b'
+            );
         };
 
         // ================= ORDERS =================
@@ -788,14 +874,145 @@
         }
 
         window.deleteBlog = async (id, title) => {
-            if (!confirm(`Delete post "${title}"?`)) return;
+            showConfirmModal(
+                'Delete Blog Post',
+                `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+                'Delete',
+                async () => {
+                    try {
+                        await fetch(`/api/admin/blogs/${id}`, { 
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        loadBlogs();
+                    } catch(e) { if(window.VeloreToast) VeloreToast.show('Error deleting blog','error'); }
+                },
+                '#ff6b6b'
+            );
+        };
+
+        // ================= COUPONS =================
+        async function loadCoupons() {
             try {
-                await fetch(`/api/admin/blogs/${id}`, { 
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch('/api/admin/coupons', { headers: { 'Authorization': `Bearer ${token}` } });
+                const coupons = await res.json();
+                document.getElementById('coupons-tbody').innerHTML = coupons.map(c => `
+                    <tr>
+                        <td style="font-family:monospace;font-size:1.1rem;color:var(--color-gold)">${c.code}</td>
+                        <td>${c.discountPercent}%</td>
+                        <td>₹${c.minAmount.toLocaleString()}</td>
+                        <td>${c.usedCount} / ${c.maxUses}</td>
+                        <td><span class="badge ${c.isActive ? 'badge-green' : 'badge-red'}">${c.isActive ? 'Active' : 'Inactive'}</span></td>
+                        <td><span class="badge ${c.isPublic ? 'badge-gold' : ''}">${c.isPublic ? 'Yes' : 'No'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-icon btn-edit" onclick="editCoupon('${c._id}')" title="Edit">✎</button>
+                                <button class="btn-icon btn-del" onclick="deleteCoupon('${c._id}','${c.code}')" title="Delete">×</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+        loadCoupons();
+
+        document.getElementById('submit-coupon').addEventListener('click', async () => {
+            const btn = document.getElementById('submit-coupon');
+            const editId = document.getElementById('coupon-edit-id').value;
+            const code = document.getElementById('cp-code').value;
+            const discountPercent = document.getElementById('cp-discount').value;
+            
+            if (!code || !discountPercent) { alert('Code and Discount are required!'); return; }
+
+            btn.disabled = true;
+            btn.textContent = editId ? 'Updating...' : 'Saving...';
+
+            const payload = {
+                code: code.toUpperCase(),
+                discountPercent: Number(discountPercent),
+                minAmount: Number(document.getElementById('cp-minamount').value || 0),
+                maxUses: Number(document.getElementById('cp-maxuses').value || 100),
+                title: document.getElementById('cp-title').value,
+                description: document.getElementById('cp-desc').value,
+                isActive: document.getElementById('cp-active').checked,
+                isPublic: document.getElementById('cp-public').checked
+            };
+
+            try {
+                const url = editId ? `/api/admin/coupons/${editId}` : '/api/admin/coupons';
+                const method = editId ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
                 });
-                loadBlogs();
-            } catch(e) { alert('Error.'); }
+                if (res.ok) {
+                    alert('Success!');
+                    clearCouponForm();
+                    loadCoupons();
+                } else { const err = await res.json(); alert(err.error || 'Failed'); }
+            } catch(e) { alert('Error: ' + e.message); }
+            finally { btn.disabled = false; btn.textContent = editId ? 'Update Coupon' : 'Save Coupon'; }
+        });
+
+        window.editCoupon = async (id) => {
+            try {
+                const res = await fetch('/api/admin/coupons', { headers: { 'Authorization': `Bearer ${token}` } });
+                const coupons = await res.json();
+                const c = coupons.find(x => x._id === id);
+                if(!c) return;
+
+                document.getElementById('coupon-edit-id').value = c._id;
+                document.getElementById('cp-code').value = c.code;
+                document.getElementById('cp-discount').value = c.discountPercent;
+                document.getElementById('cp-minamount').value = c.minAmount;
+                document.getElementById('cp-maxuses').value = c.maxUses;
+                document.getElementById('cp-title').value = c.title || '';
+                document.getElementById('cp-desc').value = c.description || '';
+                document.getElementById('cp-active').checked = c.isActive;
+                document.getElementById('cp-public').checked = c.isPublic;
+                
+                document.getElementById('coupon-form-title').textContent = 'Edit Coupon';
+                document.getElementById('submit-coupon').textContent = 'Update Coupon';
+                document.getElementById('cancel-coupon-edit').style.display = 'block';
+                document.getElementById('coupon-form-card').scrollIntoView({behavior:'smooth'});
+            } catch(e) { alert('Error loading coupon.'); }
+        };
+
+        document.getElementById('cancel-coupon-edit').addEventListener('click', clearCouponForm);
+
+        function clearCouponForm() {
+            document.getElementById('coupon-edit-id').value = '';
+            document.getElementById('cp-code').value = '';
+            document.getElementById('cp-discount').value = '';
+            document.getElementById('cp-minamount').value = '';
+            document.getElementById('cp-maxuses').value = '';
+            document.getElementById('cp-title').value = '';
+            document.getElementById('cp-desc').value = '';
+            document.getElementById('cp-active').checked = true;
+            document.getElementById('cp-public').checked = false;
+            
+            document.getElementById('coupon-form-title').textContent = 'Add New Coupon';
+            document.getElementById('submit-coupon').textContent = 'Save Coupon';
+            document.getElementById('cancel-coupon-edit').style.display = 'none';
+        }
+
+        window.deleteCoupon = async (id, code) => {
+            showConfirmModal(
+                'Delete Coupon',
+                `Are you sure you want to delete coupon "${code}"? This action cannot be undone.`,
+                'Delete',
+                async () => {
+                    try {
+                        await fetch(`/api/admin/coupons/${id}`, { 
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        loadCoupons();
+                    } catch(e) { if(window.VeloreToast) VeloreToast.show('Error deleting coupon','error'); }
+                },
+                '#ff6b6b'
+            );
         };
     });
     </script>
