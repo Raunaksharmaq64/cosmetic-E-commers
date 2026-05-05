@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELORÉ — Checkout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/checkout.css">
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">VELORÉ</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="#" class="nav-link" id="nav-auth-btn">Sign In</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="checkout-page" id="checkout-page">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-text">Order Summary</span></div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step" data-step="2"><span class="step-num">2</span><span class="step-text">Shipping</span></div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step" data-step="3"><span class="step-num">3</span><span class="step-text">Payment</span></div>
+        </div>
+
+        <!-- Step 1: Order Summary -->
+        <div class="checkout-panel active" id="panel-1">
+            <div class="cart-summary-card" id="cs-items"></div>
+            <div class="coupon-row">
+                <input type="text" id="coupon-input" placeholder="Coupon code">
+                <button class="coupon-apply" id="coupon-apply">Apply</button>
+            </div>
+            <div id="coupon-msg" style="font-size:0.8rem;margin-top:0.5rem;padding:0 0.5rem;display:none"></div>
+            <div class="price-breakdown" id="price-breakdown"></div>
+            <div class="checkout-nav">
+                <a href="shop.html" class="btn-back">← Continue Shopping</a>
+                <button class="btn-next" id="btn-to-step2">Continue to Shipping →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Shipping -->
+        <div class="checkout-panel" id="panel-2">
+            <h3 style="margin-bottom:1rem;font-size:1.1rem">Select Delivery Address</h3>
+            <div class="addr-select-grid" id="checkout-addr-grid"></div>
+            <button class="addr-add-btn" id="checkout-add-addr" style="margin-bottom:1rem">+ Add New Address</button>
+            <div class="delivery-note">📦 Estimated delivery: <strong>3-5 business days</strong> across India. Free shipping on orders above ₹2,000.</div>
+            <div class="checkout-nav">
+                <button class="btn-back" id="btn-back-1">← Order Summary</button>
+                <button class="btn-next" id="btn-to-step3" disabled>Continue to Payment →</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Payment -->
+        <div class="checkout-panel" id="panel-3">
+            <div class="payment-summary">
+                <p class="pay-section-title">Items</p>
+                <div class="pay-items-mini" id="pay-items-mini"></div>
+                <p class="pay-section-title">Shipping To</p>
+                <p class="pay-addr-text" id="pay-addr-text">—</p>
+            </div>
+            <div class="price-breakdown" id="pay-price-breakdown"></div>
+            <div class="checkout-nav">
+                <button class="btn-back" id="btn-back-2">← Change Address</button>
+                <button class="btn-next" id="btn-pay">Pay Now →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="checkout-empty" style="display:none;text-align:center;padding:200px var(--space-md);min-height:100vh">
+        <h2 style="font-size:2rem;margin-bottom:1rem">Your cart is empty</h2>
+        <p style="color:var(--color-gray);margin-bottom:2rem">Add some products before checking out.</p>
+        <a href="shop.html" style="padding:14px 30px;background:var(--color-gold);color:#000;border-radius:4px;text-decoration:none;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase">Browse Shop</a>
+    </div>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="js/checkout-flow.js"></script>
+</body>
+</html>

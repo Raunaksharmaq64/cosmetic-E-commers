@@ -165,8 +165,9 @@
                     alert('Please sign in to checkout.');
                     return;
                 }
-                // For now, create a Razorpay order with all cart items
-                checkoutAll();
+                // Redirect to 3-step checkout
+                closeCartDrawer();
+                window.location.href = 'checkout.html';
             });
         }
     });

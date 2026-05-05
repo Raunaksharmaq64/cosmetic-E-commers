@@ -8,88 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body{overflow-x:hidden}
-        #navbar{background:rgba(15,15,15,0.85);backdrop-filter:blur(12px);padding:0.6rem 0}
-        .account-page{max-width:1100px;margin:0 auto;padding:120px var(--space-md) var(--space-xl)}
-        .account-header{margin-bottom:var(--space-lg)}
-        .account-header h1{font-size:clamp(2rem,4vw,3rem);margin-bottom:0.5rem}
-        .account-header p{color:var(--color-gray);font-size:0.95rem}
-
-        .account-tabs{display:flex;gap:0;border-bottom:1px solid var(--color-border);margin-bottom:var(--space-lg);overflow-x:auto}
-        .account-tab{padding:14px 24px;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gray);cursor:pointer;border:none;background:none;font-family:var(--font-body);border-bottom:2px solid transparent;transition:all 0.3s;white-space:nowrap}
-        .account-tab:hover{color:var(--color-ivory)}
-        .account-tab.active{color:var(--color-gold);border-bottom-color:var(--color-gold)}
-
-        .tab-content{display:none;animation:fadeIn 0.4s ease}
-        .tab-content.active{display:block}
-
-        /* Orders */
-        .order-card{background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:1.5rem;margin-bottom:1rem}
-        .order-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem}
-        .order-id{font-size:0.75rem;color:var(--color-gray);letter-spacing:0.1em}
-        .order-date{font-size:0.8rem;color:var(--color-gray)}
-        .order-status{padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
-        .status-created{background:rgba(255,193,7,0.15);color:#ffc107}
-        .status-paid{background:rgba(76,175,80,0.15);color:#4caf50}
-        .status-processing{background:rgba(33,150,243,0.15);color:#2196f3}
-        .status-shipped{background:rgba(156,39,176,0.15);color:#ce93d8}
-        .status-delivered{background:rgba(76,175,80,0.15);color:#4caf50}
-
-        .order-items{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
-        .order-item{display:flex;gap:0.8rem;align-items:center}
-        .order-item img{width:50px;height:50px;object-fit:cover;border-radius:6px;background:#1a1a1a}
-        .order-item-name{font-size:0.85rem}
-        .order-item-qty{font-size:0.75rem;color:var(--color-gray)}
-        .order-amount{font-size:1.1rem;color:var(--color-gold);font-weight:500}
-
-        /* Tracking */
-        .tracking-bar{display:flex;align-items:center;gap:0;margin-top:1rem;padding:1rem 0}
-        .track-step{flex:1;text-align:center;position:relative}
-        .track-dot{width:14px;height:14px;border-radius:50%;background:var(--color-border);margin:0 auto 6px;position:relative;z-index:2;transition:background 0.3s}
-        .track-step.done .track-dot{background:var(--color-gold)}
-        .track-step.current .track-dot{background:var(--color-gold);box-shadow:0 0 12px rgba(201,169,110,0.5)}
-        .track-label{font-size:0.65rem;color:var(--color-gray);letter-spacing:0.05em;text-transform:uppercase}
-        .track-step.done .track-label,.track-step.current .track-label{color:var(--color-gold)}
-        .track-line{position:absolute;top:7px;left:50%;right:-50%;height:2px;background:var(--color-border);z-index:1}
-        .track-step.done .track-line{background:var(--color-gold)}
-        .track-step:last-child .track-line{display:none}
-
-        /* Wishlist */
-        .wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-        .wishlist-item{background:rgba(22,22,22,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform 0.3s}
-        .wishlist-item:hover{transform:translateY(-4px)}
-        .wishlist-item img{width:100%;aspect-ratio:1/1;object-fit:cover}
-        .wishlist-item-body{padding:1rem}
-        .wishlist-item-name{font-size:0.9rem;margin-bottom:0.3rem}
-        .wishlist-item-price{font-size:0.85rem;color:var(--color-gold)}
-        .wishlist-actions{display:flex;gap:0.5rem;margin-top:0.8rem}
-        .wishlist-actions button{flex:1;padding:8px;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;font-family:var(--font-body);transition:all 0.3s}
-        .wl-cart-btn{background:var(--color-gold);color:var(--color-black);border:none}
-        .wl-remove-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--color-gray)}
-        .wl-remove-btn:hover{border-color:#ff6b6b;color:#ff6b6b}
-
-        /* Profile */
-        .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-        .profile-field label{display:block;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gray);margin-bottom:0.4rem}
-        .profile-field input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);padding:12px 14px;color:var(--color-ivory);font-family:var(--font-body);font-size:0.9rem;border-radius:4px;outline:none}
-        .profile-field input:focus{border-color:var(--color-gold)}
-        .empty-state{text-align:center;padding:60px 0;color:var(--color-gray)}
-        .empty-state h3{font-size:1.3rem;color:var(--color-ivory);margin-bottom:0.5rem}
-        .empty-state a{color:var(--color-gold);text-decoration:underline}
-
-        @media(max-width:768px){
-            .account-tabs{gap:0}
-            .account-tab{padding:12px 16px;font-size:0.7rem}
-            .profile-grid{grid-template-columns:1fr}
-            .order-header{flex-direction:column;align-items:flex-start}
-            .wishlist-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-        }
-        @media(max-width:480px){
-            .tracking-bar{flex-wrap:wrap;gap:0.5rem}
-            .track-line{display:none!important}
-        }
-    </style>
+    <link rel="stylesheet" href="css/account.css">
 </head>
 <body>
     <nav id="navbar">
@@ -108,14 +27,19 @@
 
     <div class="account-page" id="account-page">
         <div class="account-header">
-            <h1 id="account-greeting">My Account</h1>
-            <p id="account-email"></p>
+            <div class="avatar-circle" id="user-avatar">V</div>
+            <div class="account-header-text">
+                <h1 id="account-greeting">My Account</h1>
+                <p id="account-email"></p>
+            </div>
         </div>
 
         <div class="account-tabs">
             <button class="account-tab active" data-tab="orders">Orders</button>
             <button class="account-tab" data-tab="wishlist">Wishlist</button>
             <button class="account-tab" data-tab="profile">Profile</button>
+            <button class="account-tab" data-tab="addresses">Addresses</button>
+            <button class="account-tab" data-tab="settings">Settings</button>
         </div>
 
         <!-- Orders Tab -->
@@ -130,13 +54,49 @@
 
         <!-- Profile Tab -->
         <div class="tab-content" id="tab-profile">
-            <div class="profile-grid" id="profile-form">
-                <div class="profile-field"><label>Name</label><input id="p-name" readonly></div>
-                <div class="profile-field"><label>Email</label><input id="p-email" readonly></div>
-                <div class="profile-field"><label>Mobile</label><input id="p-mobile" readonly></div>
-                <div class="profile-field"><label>Member Since</label><input id="p-since" readonly></div>
+            <div class="profile-card">
+                <div class="profile-grid" id="profile-form">
+                    <div class="profile-field"><label>Full Name</label><input id="p-name" placeholder="Your name"></div>
+                    <div class="profile-field"><label>Email</label><input id="p-email" readonly></div>
+                    <div class="profile-field"><label>Mobile</label><input id="p-mobile" placeholder="+91 XXXXX XXXXX"></div>
+                    <div class="profile-field"><label>Alternate Phone</label><input id="p-altphone" placeholder="Optional"></div>
+                    <div class="profile-field">
+                        <label>Gender</label>
+                        <select id="p-gender">
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="profile-field"><label>Date of Birth</label><input id="p-dob" type="date"></div>
+                    <div class="profile-field"><label>Member Since</label><input id="p-since" readonly></div>
+                </div>
+                <button class="profile-save" id="profile-save-btn">Save Changes</button>
             </div>
-            <button onclick="localStorage.clear();window.location.href='index.html'" style="margin-top:2rem;padding:12px 30px;background:transparent;border:1px solid #ff6b6b;color:#ff6b6b;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;">Sign Out</button>
+        </div>
+
+        <!-- Addresses Tab -->
+        <div class="tab-content" id="tab-addresses">
+            <div class="addr-header">
+                <h3>Saved Addresses</h3>
+                <button class="addr-add-btn" id="addr-add-btn">+ Add Address</button>
+            </div>
+            <div class="addr-grid" id="addr-grid"></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="tab-settings">
+            <div class="settings-card">
+                <h4>Account</h4>
+                <p>Manage your VELORÉ account preferences.</p>
+                <button class="btn-danger" id="signout-btn">Sign Out</button>
+            </div>
+            <div class="settings-card">
+                <h4>Need Help?</h4>
+                <p>Contact our support team for any queries.</p>
+                <a href="contact.html" style="color:var(--color-gold);font-size:0.85rem;text-decoration:underline">Contact Support</a>
+            </div>
         </div>
     </div>
 
@@ -145,6 +105,49 @@
         <h2 style="font-size:2rem;margin-bottom:1rem;">Sign In Required</h2>
         <p style="color:var(--color-gray);margin-bottom:2rem;">Please sign in to view your account.</p>
         <a href="index.html" style="padding:14px 30px;background:var(--color-gold);color:var(--color-black);border-radius:4px;text-decoration:none;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;">Go to Homepage</a>
+    </div>
+
+    <!-- Address Form Modal -->
+    <div class="addr-form-overlay" id="addr-form-overlay">
+        <div class="addr-form-card">
+            <button class="addr-form-close" id="addr-form-close">&times;</button>
+            <h3 id="addr-form-title">Add New Address</h3>
+            <input type="hidden" id="addr-edit-id">
+            <div class="addr-form-grid">
+                <div class="profile-field"><label>Label</label>
+                    <select id="af-label"><option value="Home">Home</option><option value="Work">Work</option><option value="Other">Other</option></select>
+                </div>
+                <div class="profile-field"><label>Full Name</label><input id="af-name" placeholder="Receiver's name"></div>
+                <div class="profile-field full"><label>Address Line 1 *</label><input id="af-line1" placeholder="House/Flat No., Building, Street"></div>
+                <div class="profile-field full"><label>Address Line 2</label><input id="af-line2" placeholder="Area, Colony (optional)"></div>
+                <div class="profile-field"><label>Landmark</label><input id="af-landmark" placeholder="Near..."></div>
+                <div class="profile-field"><label>City *</label><input id="af-city" placeholder="City"></div>
+                <div class="profile-field">
+                    <label>State *</label>
+                    <select id="af-state">
+                        <option value="">Select State</option>
+                        <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option>
+                        <option>Chhattisgarh</option><option>Delhi</option><option>Goa</option><option>Gujarat</option>
+                        <option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option>
+                        <option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+                        <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option>
+                        <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+                        <option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+                        <option>West Bengal</option>
+                    </select>
+                </div>
+                <div class="profile-field"><label>Pincode *</label><input id="af-pincode" placeholder="6-digit PIN" maxlength="6"></div>
+                <div class="profile-field"><label>Phone *</label><input id="af-phone" placeholder="10-digit mobile"></div>
+                <div class="profile-field full" style="display:flex;align-items:center;gap:8px;margin-top:0.5rem">
+                    <input type="checkbox" id="af-default" style="accent-color:var(--color-gold);width:16px;height:16px">
+                    <label for="af-default" style="margin:0;font-size:0.82rem;color:var(--color-ivory);letter-spacing:0;text-transform:none">Set as default address</label>
+                </div>
+            </div>
+            <div style="display:flex;gap:1rem;margin-top:1.5rem">
+                <button class="profile-save" id="addr-save-btn" style="flex:1">Save Address</button>
+                <button class="addr-add-btn" id="addr-cancel-btn" style="flex:0.5">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <!-- Cart Drawer -->
@@ -164,115 +167,6 @@
     <script src="js/cart.js"></script>
     <script src="js/wishlist.js"></script>
     <script src="js/premium.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Mobile nav
-        const toggle = document.getElementById('nav-toggle');
-        if(toggle) toggle.addEventListener('click', () => { document.getElementById('nav-links').classList.toggle('open'); toggle.classList.toggle('active'); });
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            document.getElementById('account-page').style.display = 'none';
-            document.getElementById('not-logged-in').style.display = 'block';
-            return;
-        }
-
-        // Auth btn
-        const authBtn = document.getElementById('nav-auth-btn');
-        const userName = localStorage.getItem('userName');
-        if (userName && authBtn) { authBtn.innerText = `Hi, ${userName}`; authBtn.href = 'account.html'; }
-
-        // Load profile
-        try {
-            const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
-            if (res.ok) {
-                const user = await res.json();
-                document.getElementById('account-greeting').textContent = `Welcome, ${user.name}`;
-                document.getElementById('account-email').textContent = user.email;
-                document.getElementById('p-name').value = user.name;
-                document.getElementById('p-email').value = user.email;
-                document.getElementById('p-mobile').value = user.mobile;
-                document.getElementById('p-since').value = new Date(user.createdAt).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' });
-            }
-        } catch(e) { console.error(e); }
-
-        // Load orders
-        try {
-            const res = await fetch('/api/auth/orders', { headers: { Authorization: `Bearer ${token}` } });
-            const orders = await res.json();
-            const container = document.getElementById('orders-list');
-
-            if (!orders.length) {
-                container.innerHTML = '<div class="empty-state"><h3>No orders yet</h3><p>Start shopping to see your orders here.</p><a href="shop.html">Browse Shop</a></div>';
-            } else {
-                container.innerHTML = orders.map(o => {
-                    const statuses = ['created','paid','processing','shipped','delivered'];
-                    const currentIdx = statuses.indexOf(o.status);
-                    const trackingHTML = statuses.map((s,i) => `
-                        <div class="track-step ${i<currentIdx?'done':''} ${i===currentIdx?'current':''}">
-                            <div class="track-line"></div>
-                            <div class="track-dot"></div>
-                            <div class="track-label">${s}</div>
-                        </div>
-                    `).join('');
-
-                    return `<div class="order-card">
-                        <div class="order-header">
-                            <div><span class="order-id">Order #${o._id.slice(-8).toUpperCase()}</span></div>
-                            <span class="order-date">${new Date(o.createdAt).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'})}</span>
-                            <span class="order-status status-${o.status}">${o.status}</span>
-                        </div>
-                        <div class="order-items">${o.items.map(item=>`
-                            <div class="order-item">
-                                <img src="${item.imageSrc}" alt="${item.name}">
-                                <div><p class="order-item-name">${item.name}</p><p class="order-item-qty">Qty: ${item.quantity}</p></div>
-                            </div>
-                        `).join('')}</div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span class="order-amount">₹${o.amount?.toLocaleString()}</span>
-                            ${o.couponUsed ? `<span style="font-size:0.75rem;color:var(--color-gold);">Coupon: ${o.couponUsed} (-₹${o.discount})</span>` : ''}
-                        </div>
-                        <div class="tracking-bar">${trackingHTML}</div>
-                    </div>`;
-                }).join('');
-            }
-        } catch(e) { console.error(e); }
-
-        // Load wishlist
-        function renderWishlist() {
-            const list = window.VeloreWishlist.get();
-            const grid = document.getElementById('wishlist-grid');
-            if (!list.length) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3>Your wishlist is empty</h3><p>Save products you love by clicking the ♡ icon.</p><a href="shop.html">Browse Shop</a></div>';
-                return;
-            }
-            grid.innerHTML = list.map(p => `
-                <div class="wishlist-item" onclick="window.location.href='product.html?id=${p.id}'">
-                    <img src="${p.imageSrc}" alt="${p.name}">
-                    <div class="wishlist-item-body">
-                        <p class="wishlist-item-name">${p.name}</p>
-                        <p class="wishlist-item-price">₹${p.price?.toLocaleString()}</p>
-                        <div class="wishlist-actions">
-                            <button class="wl-cart-btn" onclick="event.stopPropagation();VeloreCart.add({id:'${p.id}',name:'${p.name.replace(/'/g,"\\'")}',price:${p.price},imageSrc:'${p.imageSrc}',quantity:1});VeloreToast.show('Added to cart','cart')">Add to Cart</button>
-                            <button class="wl-remove-btn" onclick="event.stopPropagation();VeloreWishlist.remove('${p.id}');renderWishlist();">Remove</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        renderWishlist();
-        window.renderWishlist = renderWishlist;
-
-        // Tab switching
-        document.querySelectorAll('.account-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-            });
-        });
-    });
-    </script>
+    <script src="js/account.js"></script>
 </body>
 </html>
