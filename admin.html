@@ -161,6 +161,7 @@
             </nav>
             <div class="sidebar-footer">
                 <a href="index.html" class="back-link"><span>←</span> Back to Store</a>
+                <button id="admin-logout" class="back-link" style="background:none;border:none;cursor:pointer;margin-top:1rem;width:100%;justify-content:flex-start;">🚪 Logout</button>
             </div>
         </aside>
 
@@ -172,8 +173,8 @@
                     <h1 class="page-title" id="topbar-title">Dashboard</h1>
                 </div>
                 <div class="admin-profile">
-                    <span>Admin</span>
-                    <div class="profile-avatar">V</div>
+                    <span id="admin-name">Admin</span>
+                    <div class="profile-avatar" id="admin-avatar">V</div>
                 </div>
             </header>
 
@@ -412,6 +413,14 @@
     <!-- Scripts -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Security Check: Only admins allowed
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        const token = localStorage.getItem('token');
+        if (!isAdmin || !token) {
+            window.location.href = 'index.html';
+            return;
+        }
+
         // Mobile Sidebar Toggle
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -423,6 +432,17 @@
         }
         menuBtn.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
+
+        // Update profile name
+        const userName = localStorage.getItem('userName');
+        if (userName) document.getElementById('admin-name').textContent = userName;
+        if (userName) document.getElementById('admin-avatar').textContent = userName.charAt(0).toUpperCase();
+
+        // Logout logic
+        document.getElementById('admin-logout').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
 
         // Tab Navigation
         const navItems = document.querySelectorAll('.s-nav-item');
@@ -448,7 +468,9 @@
         // ================= DASHBOARD =================
         async function loadStats() {
             try {
-                const res = await fetch('/api/admin/stats');
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const s = await res.json();
                 document.getElementById('s-products').textContent = s.totalProducts;
                 document.getElementById('s-orders').textContent = s.totalOrders;
@@ -530,7 +552,11 @@
             try {
                 const url = editId ? `/api/admin/products/${editId}` : '/api/admin/products';
                 const method = editId ? 'PUT' : 'POST';
-                const res = await fetch(url, { method, body: formData });
+                const res = await fetch(url, { 
+                    method, 
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData 
+                });
                 const data = await res.json();
                 if (res.ok) {
                     alert(editId ? 'Product updated successfully!' : `Product added successfully!`);
@@ -590,7 +616,10 @@
         window.deleteProduct = async (id, name) => {
             if (!confirm(`Delete product "${name}"?`)) return;
             try {
-                await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+                await fetch(`/api/admin/products/${id}`, { 
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 loadProducts();
                 loadStats();
             } catch(e) { alert('Error deleting.'); }
@@ -599,7 +628,9 @@
         // ================= ORDERS =================
         async function loadOrders() {
             try {
-                const res = await fetch('/api/admin/orders');
+                const res = await fetch('/api/admin/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const orders = await res.json();
                 const container = document.getElementById('orders-list');
                 if (!orders.length) { container.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">No orders found.</td></tr>'; return; }
@@ -629,7 +660,11 @@
         window.updateOrderStatus = async (id, status) => {
             try {
                 await fetch(`/api/admin/orders/${id}`, {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    method: 'PUT', 
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ status })
                 });
             } catch(e) { alert('Update failed.'); }
@@ -648,7 +683,9 @@
 
         async function loadBlogs() {
             try {
-                const res = await fetch('/api/admin/blogs');
+                const res = await fetch('/api/admin/blogs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const blogs = await res.json();
                 document.getElementById('blogs-tbody').innerHTML = blogs.map(b => `
                     <tr>
@@ -699,7 +736,11 @@
             try {
                 const url = editId ? `/api/admin/blogs/${editId}` : '/api/admin/blogs';
                 const method = editId ? 'PUT' : 'POST';
-                const res = await fetch(url, { method, body: formData });
+                const res = await fetch(url, { 
+                    method, 
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData 
+                });
                 if (res.ok) {
                     alert('Success!');
                     clearBlogForm();
@@ -749,7 +790,10 @@
         window.deleteBlog = async (id, title) => {
             if (!confirm(`Delete post "${title}"?`)) return;
             try {
-                await fetch(`/api/admin/blogs/${id}`, { method: 'DELETE' });
+                await fetch(`/api/admin/blogs/${id}`, { 
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 loadBlogs();
             } catch(e) { alert('Error.'); }
         };

@@ -213,7 +213,7 @@
         if (!items.length) return;
         document.getElementById('rv-section').style.display = 'block';
         document.getElementById('rv-grid').innerHTML = items.map(p => `
-            <div class="rv-card" onclick="window.location.href='product.html?id=${p.id}'">
+            <div class="rv-card" data-rv-id="${p.id}" style="cursor:pointer">
                 <img src="${p.imageSrc}" alt="${p.name}" loading="lazy">
                 <div class="rv-card-body">
                     <p class="rv-card-name">${p.name}</p>
@@ -221,6 +221,27 @@
                 </div>
             </div>
         `).join('');
+        
+        // Attach click handlers that validate product exists first
+        document.querySelectorAll('.rv-card[data-rv-id]').forEach(card => {
+            card.addEventListener('click', async () => {
+                const pid = card.dataset.rvId;
+                try {
+                    const res = await fetch(`/api/products/${pid}`);
+                    if (res.ok) {
+                        window.location.href = `product.html?id=${pid}`;
+                    } else {
+                        // Product no longer exists — clean up and notify
+                        let list = VeloreRecent.get().filter(p => p.id !== pid);
+                        localStorage.setItem('velore_recently_viewed', JSON.stringify(list));
+                        card.remove();
+                        if (window.VeloreToast) VeloreToast.show('This product is no longer available.', 'error');
+                    }
+                } catch(e) {
+                    window.location.href = `product.html?id=${pid}`;
+                }
+            });
+        });
     }
 
     // Filter tabs

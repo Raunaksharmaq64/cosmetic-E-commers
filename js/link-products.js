@@ -24,54 +24,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const priceEl = card.querySelector('.product-price');
                     if (priceEl) priceEl.textContent = `₹${matchedProduct.price.toLocaleString()}`;
 
-                    // Change "Buy Now" to "Add to Cart"
-                    btnEl.innerText = "Add to Cart";
+                    // Make Buy Now navigate to product page (not just add to cart)
+                    btnEl.innerText = "Buy Now";
                     btnEl.addEventListener('click', (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if (window.VeloreCart) {
-                            window.VeloreCart.add({
-                                id: matchedProduct._id,
-                                name: matchedProduct.name,
-                                price: matchedProduct.price,
-                                imageSrc: matchedProduct.imageSrc,
-                                quantity: 1
-                            });
-                            btnEl.textContent = 'Added ✓';
-                            btnEl.style.background = 'var(--color-gold)';
-                            btnEl.style.color = '#000';
-                            btnEl.style.borderColor = 'var(--color-gold)';
-                            setTimeout(() => {
-                                btnEl.textContent = 'Add to Cart';
-                                btnEl.style.background = '';
-                                btnEl.style.color = '';
-                                btnEl.style.borderColor = '';
-                            }, 1800);
-                        } else {
-                            // Cart not loaded yet — redirect to product page
-                            window.location.href = `product.html?id=${matchedProduct._id}`;
-                        }
+                        window.location.href = `product.html?id=${matchedProduct._id}`;
                     });
 
-                    // Clicking the card image/name → product page
-                    const imgWrapper = card.querySelector('.product-img-wrapper');
-                    const nameLink = card.querySelector('.product-name');
-                    if (imgWrapper) {
-                        imgWrapper.style.cursor = 'pointer';
-                        imgWrapper.addEventListener('click', () => {
-                            window.location.href = `product.html?id=${matchedProduct._id}`;
-                        });
-                    }
-                    if (nameLink) {
-                        nameLink.style.cursor = 'pointer';
-                        nameLink.addEventListener('click', () => {
-                            window.location.href = `product.html?id=${matchedProduct._id}`;
-                        });
-                    }
+                    // Make the whole card clickable → product page
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', (e) => {
+                        // Don't navigate if they clicked the Buy Now button (handled above)
+                        if (e.target.closest('.buy-btn')) return;
+                        window.location.href = `product.html?id=${matchedProduct._id}`;
+                    });
                 } else {
                     // No match found — make Buy Now go to shop page
                     btnEl.addEventListener('click', (e) => {
                         e.preventDefault();
+                        window.location.href = 'shop.html';
+                    });
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', () => {
                         window.location.href = 'shop.html';
                     });
                 }

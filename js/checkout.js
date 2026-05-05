@@ -6,16 +6,22 @@ document.addEventListener('DOMContentLoaded', () => {
     buyButtons.forEach((btn, index) => {
         btn.addEventListener('click', async (e) => {
             const card = e.target.closest('.product-card');
+            if (!card) return;
             const name = card.querySelector('.product-name').innerText;
             const priceStr = card.querySelector('.product-price').innerText;
             const price = parseInt(priceStr.replace(/[^0-9]/g, '')); // Extract number
 
-            // Convert static $ price to INR for demo if needed, but assuming DB will handle it.
-            // Since cards are static, we'll just multiply by 80 for INR if it's currently $.
-            // Actually, let's update index.html to show ₹ directly later, but for now:
             const amountInINR = priceStr.includes('$') ? price * 80 : price;
 
+            btn.disabled = true;
+            const origText = btn.textContent;
+            btn.textContent = 'Processing...';
+
             try {
+                // Fetch Razorpay key from backend
+                const keyRes = await fetch('/api/razorpay-key');
+                const keyData = await keyRes.json();
+
                 // 1. Ask backend to create Razorpay Order
                 const orderResponse = await fetch('/api/create-order', {
                     method: 'POST',
@@ -24,10 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         amount: amountInINR,
                         items: [{ name, price: amountInINR, quantity: 1 }],
                         customerDetails: {
-                            name: "Guest User",
-                            email: "guest@example.com",
-                            address: "123 Street, City",
-                            phone: "9999999999"
+                            name: localStorage.getItem('userName') || "Guest User",
+                            email: localStorage.getItem('userEmail') || "guest@example.com",
+                            address: "Pending",
+                            phone: "Pending"
                         }
                     })
                 });
@@ -41,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Open Razorpay Checkout Modal
                 const options = {
-                    key: "your_razorpay_key_id", // Replace with your actual key or fetch from backend
+                    key: keyData.key,
                     amount: order.amount,
                     currency: order.currency,
                     name: "VELORÉ",
-                    description: "Test Transaction for " + name,
+                    description: "Purchase: " + name,
                     order_id: order.id,
                     handler: async function (response) {
                         // 3. Verify Payment
@@ -60,18 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         const verifyData = await verifyRes.json();
                         if (verifyData.success) {
-                            alert("Payment Successful! Thank you for your order.");
+                            if (window.VeloreToast) VeloreToast.show('Payment Successful!', 'success');
+                            else alert("Payment Successful! Thank you for your order.");
                         } else {
-                            alert("Payment Verification Failed!");
+                            if (window.VeloreToast) VeloreToast.show('Payment Verification Failed!', 'error');
+                            else alert("Payment Verification Failed!");
                         }
                     },
                     prefill: {
-                        name: "Guest User",
-                        email: "guest@example.com",
-                        contact: "9999999999"
+                        name: localStorage.getItem('userName') || "Guest User",
+                        email: localStorage.getItem('userEmail') || "guest@example.com",
+                        contact: ""
                     },
                     theme: {
-                        color: "#c9a050" // Match brand gold
+                        color: "#c9a050"
                     }
                 };
 
@@ -80,7 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
             } catch (err) {
                 console.error("Checkout Error:", err);
-                alert("Something went wrong with checkout.");
+                if (window.VeloreToast) VeloreToast.show('Checkout error: ' + err.message, 'error');
+                else alert("Something went wrong with checkout.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = origText;
             }
         });
     });

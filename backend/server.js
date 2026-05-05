@@ -25,6 +25,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../')));
 
+// Admin Authorization Middleware
+const adminAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+    if (!user || !user.isAdmin) return res.status(403).json({ error: 'Access denied. Admin only.' });
+    req.user = user;
+    next();
+  } catch (err) { res.status(401).json({ error: 'Invalid or expired token.' }); }
+};
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'dummy_id',
   key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
@@ -77,8 +91,23 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: String, required: true },
+  alternatePhone: { type: String, default: '' },
+  gender: { type: String, enum: ['', 'male', 'female', 'other'], default: '' },
+  dateOfBirth: { type: String, default: '' },
   password: { type: String, required: true },
-  addresses: [{ label: String, line1: String, city: String, pincode: String, phone: String }],
+  isAdmin: { type: Boolean, default: false },
+  addresses: [{
+    label: { type: String, default: 'Home' },
+    fullName: String,
+    phone: String,
+    line1: String,
+    line2: { type: String, default: '' },
+    landmark: { type: String, default: '' },
+    city: String,
+    state: String,
+    pincode: String,
+    isDefault: { type: Boolean, default: false }
+  }],
   createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
@@ -257,8 +286,8 @@ app.post('/api/auth/login', async (req, res) => {
     if (!user) return res.status(400).json({ error: "Invalid credentials." });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials." });
-    const token = jwt.sign({ id: user._id, name: user.name }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile } });
+    const token = jwt.sign({ id: user._id, name: user.name, isAdmin: user.isAdmin }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, isAdmin: user.isAdmin } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -286,6 +315,84 @@ app.get('/api/auth/orders', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Update profile
+app.put('/api/auth/profile', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'fallback_secret');
+    const { name, mobile, alternatePhone, gender, dateOfBirth } = req.body;
+    const user = await User.findByIdAndUpdate(decoded.id, { name, mobile, alternatePhone, gender, dateOfBirth }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Add address
+app.post('/api/auth/address', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const addr = req.body;
+    if (addr.isDefault || user.addresses.length === 0) {
+      user.addresses.forEach(a => a.isDefault = false);
+      addr.isDefault = true;
+    }
+    user.addresses.push(addr);
+    await user.save();
+    res.status(201).json(user.addresses);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Edit address
+app.put('/api/auth/address/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const addr = user.addresses.id(req.params.id);
+    if (!addr) return res.status(404).json({ error: 'Address not found' });
+    Object.assign(addr, req.body);
+    if (req.body.isDefault) user.addresses.forEach(a => { if (a._id.toString() !== req.params.id) a.isDefault = false; });
+    await user.save();
+    res.json(user.addresses);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Delete address
+app.delete('/api/auth/address/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.addresses.pull(req.params.id);
+    if (user.addresses.length && !user.addresses.some(a => a.isDefault)) user.addresses[0].isDefault = true;
+    await user.save();
+    res.json(user.addresses);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Set default address
+app.put('/api/auth/address/:id/default', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.addresses.forEach(a => a.isDefault = a._id.toString() === req.params.id);
+    await user.save();
+    res.json(user.addresses);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ==================== COUPONS ====================
 
 app.post('/api/coupon/validate', async (req, res) => {
@@ -299,6 +406,12 @@ app.post('/api/coupon/validate', async (req, res) => {
     const discount = Math.round(amount * coupon.discountPercent / 100);
     res.json({ discount, percent: coupon.discountPercent, code: coupon.code });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ==================== RAZORPAY KEY (PUBLIC) ====================
+
+app.get('/api/razorpay-key', (req, res) => {
+  res.json({ key: process.env.RAZORPAY_KEY_ID || 'dummy_id' });
 });
 
 // ==================== ORDERS / PAYMENT ====================
@@ -367,16 +480,16 @@ app.post('/api/contact', async (req, res) => {
 
 // ==================== ADMIN ====================
 
-app.get('/api/admin/orders', async (req, res) => {
+app.get('/api/admin/orders', adminAuth, async (req, res) => {
   try { res.json(await Order.find({}).sort({ createdAt: -1 })); } catch (err) { res.status(500).json({ error: err.message }); }
 });
-app.put('/api/admin/orders/:id', async (req, res) => {
+app.put('/api/admin/orders/:id', adminAuth, async (req, res) => {
   try { res.json(await Order.findByIdAndUpdate(req.params.id, req.body, { new: true })); } catch (err) { res.status(500).json({ error: err.message }); }
 });
-app.get('/api/admin/contacts', async (req, res) => {
+app.get('/api/admin/contacts', adminAuth, async (req, res) => {
   try { res.json(await Contact.find({}).sort({ createdAt: -1 })); } catch (err) { res.status(500).json({ error: err.message }); }
 });
-app.get('/api/admin/stats', async (req, res) => {
+app.get('/api/admin/stats', adminAuth, async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
     const paidOrders = await Order.countDocuments({ status: 'paid' });
@@ -388,7 +501,7 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 // Admin: Add Product (with image upload)
-app.post('/api/admin/products', upload.single('image'), async (req, res) => {
+app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, res) => {
   try {
     const { name, description, longDescription, price, originalPrice, category, ingredients, howToUse, size, stock } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'Name and price are required.' });
@@ -407,7 +520,7 @@ app.post('/api/admin/products', upload.single('image'), async (req, res) => {
 });
 
 // Admin: Update Product
-app.put('/api/admin/products/:id', upload.single('image'), async (req, res) => {
+app.put('/api/admin/products/:id', adminAuth, upload.single('image'), async (req, res) => {
   try {
     const updates = { ...req.body };
     if (updates.price) updates.price = Number(updates.price);
@@ -422,7 +535,7 @@ app.put('/api/admin/products/:id', upload.single('image'), async (req, res) => {
 });
 
 // Admin: Delete Product
-app.delete('/api/admin/products/:id', async (req, res) => {
+app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Product deleted.' });
@@ -457,7 +570,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
 });
 
 // Admin: Create blog
-app.post('/api/admin/blogs', upload.single('coverImage'), async (req, res) => {
+app.post('/api/admin/blogs', adminAuth, upload.single('coverImage'), async (req, res) => {
   try {
     const { title, excerpt, content, category, tags, author } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content are required.' });
@@ -474,7 +587,7 @@ app.post('/api/admin/blogs', upload.single('coverImage'), async (req, res) => {
 });
 
 // Admin: Update blog
-app.put('/api/admin/blogs/:id', upload.single('coverImage'), async (req, res) => {
+app.put('/api/admin/blogs/:id', adminAuth, upload.single('coverImage'), async (req, res) => {
   try {
     const updates = { ...req.body };
     if (req.file) updates.coverImage = `images/${req.file.filename}`;
@@ -487,7 +600,7 @@ app.put('/api/admin/blogs/:id', upload.single('coverImage'), async (req, res) =>
 });
 
 // Admin: Delete blog
-app.delete('/api/admin/blogs/:id', async (req, res) => {
+app.delete('/api/admin/blogs/:id', adminAuth, async (req, res) => {
   try {
     await Blog.findByIdAndDelete(req.params.id);
     res.json({ message: 'Blog deleted.' });
@@ -495,7 +608,7 @@ app.delete('/api/admin/blogs/:id', async (req, res) => {
 });
 
 // Admin: Get all blogs (including unpublished)
-app.get('/api/admin/blogs', async (req, res) => {
+app.get('/api/admin/blogs', adminAuth, async (req, res) => {
   try { res.json(await Blog.find({}).sort({ createdAt: -1 })); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });

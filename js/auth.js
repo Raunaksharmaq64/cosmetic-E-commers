@@ -36,20 +36,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const userName = localStorage.getItem('userName');
 
     if (token && userName && authBtn) {
-        // User is logged in — show name, click goes to account
-        authBtn.innerText = `Hi, ${userName}`;
-        authBtn.href = 'account.html';
+        // User is logged in — show Sign Out
+        authBtn.innerText = `Sign Out`;
+        authBtn.classList.add('nav-btn-highlight');
+        authBtn.href = '#';
         authBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             // On mobile, close nav first
             const navLinks = document.getElementById('nav-links');
             const navToggle = document.getElementById('nav-toggle');
             if (navLinks) navLinks.classList.remove('open');
             if (navToggle) { navToggle.classList.remove('active'); }
+            
+            // Perform logout
+            if(confirm('Are you sure you want to sign out?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('isAdmin');
+                window.location.reload();
+            }
         });
     } else if (authBtn) {
-        // Not logged in — bind sign in modal
+        // Not logged in — show Sign In and bind modal
+        authBtn.innerText = `Sign In`;
+        authBtn.classList.add('nav-btn-highlight');
         authBtn.addEventListener('click', openModal);
     }
+
+    // Check admin status with backend
+    async function checkAdminStatus() {
+        if (!token) return;
+        try {
+            const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                const user = await res.json();
+                if (user.isAdmin) {
+                    localStorage.setItem('isAdmin', 'true');
+                    // Add Admin button to navbar if not exists
+                    if (!document.getElementById('nav-admin-btn')) {
+                        const adminLink = document.createElement('a');
+                        adminLink.href = 'admin.html';
+                        adminLink.className = 'nav-link';
+                        adminLink.id = 'nav-admin-btn';
+                        adminLink.innerText = 'Admin Panel';
+                        adminLink.style.color = 'var(--color-gold)';
+                        const navLinks = document.getElementById('nav-links');
+                        if (navLinks && authBtn) {
+                            navLinks.insertBefore(adminLink, authBtn);
+                        }
+                    }
+                } else {
+                    localStorage.setItem('isAdmin', 'false');
+                }
+            }
+        } catch (e) { console.error('Error checking admin status', e); }
+    }
+    checkAdminStatus();
 
     if(authClose) authClose.addEventListener('click', closeModal);
     if(authOverlay) authOverlay.addEventListener('click', closeModal);
@@ -93,8 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userName', data.user.name);
                 localStorage.setItem('userEmail', data.user.email || '');
+                localStorage.setItem('isAdmin', data.user.isAdmin ? 'true' : 'false');
                 closeModal();
-                window.location.reload();
+                if (data.user.isAdmin) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.reload();
+                }
             } else {
                 showAuthError(loginForm, data.error || 'Login failed');
             }

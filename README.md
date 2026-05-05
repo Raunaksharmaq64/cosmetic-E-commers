@@ -2,6 +2,9 @@
 
 A high-end, award-winning style luxury e-commerce landing page built to demonstrate advanced front-end web development, 3D interactions, and premium aesthetics. 
 
+
+///////////// http://localhost:5000/admin.html
+
 This project utilizes cutting-edge CSS, Canvas APIs, and GSAP to create a deeply immersive, tactile, and sensory experience without relying on heavy WebGL frameworks like Three.js.
 
 ## 🛠 Technologies Used

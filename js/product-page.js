@@ -95,21 +95,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (window.VeloreToast) VeloreToast.show('Please sign in to purchase.', 'error');
             return;
         }
+        const buyBtn = document.getElementById('pdp-buy-btn');
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Processing...';
+        
         VeloreCart.add({ id: product._id, name: product.name, price: product.price, imageSrc: product.imageSrc, quantity: 1 });
         try {
+            // Get Razorpay key from backend
+            const keyRes = await fetch('/api/razorpay-key');
+            const keyData = await keyRes.json();
+            
             const orderRes = await fetch('/api/create-order', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: product.price, items: [{ productId: product._id, name: product.name, price: product.price, quantity: 1, imageSrc: product.imageSrc }], customerDetails: { name: userName || 'Customer', email: '', address: 'Pending', phone: 'Pending' } })
             });
             const order = await orderRes.json();
             if (order.error) throw new Error(order.error);
-            const rzp = new Razorpay({ key: 'your_razorpay_key_id', amount: order.amount, currency: order.currency, name: 'VELORÉ', description: product.name, order_id: order.id, handler: async (r) => {
+            const rzp = new Razorpay({ key: keyData.key, amount: order.amount, currency: order.currency, name: 'VELORÉ', description: product.name, order_id: order.id, handler: async (r) => {
                 const v = await fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(r) });
                 const d = await v.json();
                 if (d.success) VeloreToast.show('Payment successful!', 'success'); else VeloreToast.show('Verification failed!', 'error');
             }, theme: { color: '#c9a050' } });
             rzp.open();
         } catch(e) { VeloreToast.show('Checkout error: ' + e.message, 'error'); }
+        finally { buyBtn.disabled = false; buyBtn.textContent = 'Buy Now'; }
     });
 
     // ---- REVIEWS ----
